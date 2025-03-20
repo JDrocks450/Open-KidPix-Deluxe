@@ -1,0 +1,35 @@
+﻿<UserControl x:Class="KidPix.ResourceExplorer.Controls.ResourcePreview.RasterImageViewer"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:KidPix.ResourceExplorer.Controls.ResourcePreview"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <DockPanel>
+        <DockPanel DockPanel.Dock="Top" Margin="10,10,10,0">
+            <Button Name="StepOverButton" DockPanel.Dock="Right" Padding="10,5" Click="StepOverButton_Click">Step Over</Button>
+            <Button Name="NextLineButton" DockPanel.Dock="Right" Margin="5,0" Padding="10,5">Next Scan Line</Button>
+            <Button Name="RunButton" DockPanel.Dock="Right" Padding="10,5" Click="RunButton_Click">Run</Button>
+            <TextBox x:Name="CodeRunLinePreviewBox" FontFamily="Consolas"/>
+        </DockPanel>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="3*"/>
+            </Grid.ColumnDefinitions>
+            <DockPanel>
+                <Viewbox Margin="10">
+                    <Border BorderBrush="Black" Background="White" BorderThickness="1,1,0,0">
+                        <UniformGrid Name="PaletteEntriesGrid" Columns="8" Width="120"/>
+                    </Border>
+                </Viewbox>
+            </DockPanel>
+            <Border BorderBrush="Black" BorderThickness="1" Background="Blue" Margin="10" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center" Padding="10">
+                <ContentControl Background="White">
+                    <Image Name="PreviewImage" RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Uniform"/>
+                </ContentControl>
+            </Border>
+        </Grid>
+    </DockPanel>
+</UserControl>

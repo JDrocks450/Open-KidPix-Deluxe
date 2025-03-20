@@ -1,0 +1,43 @@
+﻿<UserControl x:Class="KidPix.ResourceExplorer.Controls.ResourcePreview.AudioPlayer"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:KidPix.ResourceExplorer.Controls.ResourcePreview" xmlns:local1="clr-namespace:KidPix.ResourceExplorer.Controls"
+             mc:Ignorable="d" Foreground="White" Name="HOST">
+    <DockPanel>
+        <StackPanel Orientation="Horizontal" DockPanel.Dock="Top">
+            <Button x:Name="PlayButton" Width="50" Height="50" Style="{StaticResource ModernCircleButtonStyle}" Click="PlayButton_Click">
+                <Button.Background>
+                    <RadialGradientBrush GradientOrigin="0.2,0.2" RadiusX="0.75" RadiusY="0.75" SpreadMethod="Pad">
+                        <GradientStop Color="#FF00391C" Offset="1"/>
+                        <GradientStop Color="#FF34FF98" Offset="0"/>
+                    </RadialGradientBrush>
+                </Button.Background>
+                <Grid>
+                    <ContentControl Name="PlayIcon" Content="{StaticResource PlayTriangle}" Foreground="{Binding Foreground, ElementName=HOST}">
+                        <ContentControl.Effect>
+                            <DropShadowEffect ShadowDepth="2" Color="#FF006C07"/>
+                        </ContentControl.Effect>
+                    </ContentControl>
+                    <ContentControl Name="StopIcon" Content="{StaticResource StopSquare}" Visibility="Collapsed" Foreground="{Binding Foreground, ElementName=HOST}">
+                        <ContentControl.Effect>
+                            <DropShadowEffect ShadowDepth="2" Color="#FF006C07"/>
+                        </ContentControl.Effect>
+                    </ContentControl>
+                </Grid>
+
+            </Button>
+            <TextBlock Margin="10,0" VerticalAlignment="Center" FontSize="16" Text="{Binding ResourceName, ElementName=HOST}"/>
+        </StackPanel>
+        <DockPanel Margin="0,5,0,0" DockPanel.Dock="Top">
+            <TextBlock DockPanel.Dock="Left">Volume:</TextBlock>
+            <Slider Margin="5,0,0,0" Name="VolumeSlider" Maximum="1" Minimum="0"/>
+        </DockPanel>
+        <Separator Margin="0,10" DockPanel.Dock="Top"/>
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
+            <Button x:Name="CopyButton" Width="50" Click="CopyButton_Click">Copy</Button>
+            <Button x:Name="ExportWaveDataButton" Click="ExportWaveDataButton_Click" Margin="5,0" Width="175">Export Audio Wave Data</Button>
+        </StackPanel>
+    </DockPanel>
+</UserControl>
