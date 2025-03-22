@@ -18,8 +18,8 @@ namespace KidPix.API.Importer.tBMP.Decompressor
 
         public static Stream? Decompress(BMPHeader Header, EndianBinaryReader reader)
         {
-            uint uncompressedSize = reader.EnsureReadUInt32();
-            /* uint compressedSize = */reader.EnsureReadUInt32();
+            uint uncompressedSize = reader.ReadUInt32();
+            /* uint compressedSize = */reader.ReadUInt32();
             ushort dictSize = reader.ReadUInt16();
 
             // We only support the buffer size of 0x400

@@ -105,16 +105,18 @@ namespace KidPix.ResourceExplorer.Pages.ResourceExplorer
             if (CurrentFile == default || CurrentEntry == default) return;
 
             //**WAV IMPORT
+            KidPixResource? kpResource = default;
             try
             {
-                var kpResource = await CurrentFile.TryImportResourceAsync(CurrentEntry);
-                ResourcePreview.AttachResource(kpResource);
+                kpResource = await CurrentFile.TryImportResourceAsync(CurrentEntry);                
             }
             catch(Exception e)
             {
                 MessageBox.Show(e.Message);
                 return;
-            }            
+            }    
+            if (kpResource != null)
+                ResourcePreview.AttachResource(kpResource);        
         }
 
         public Task ReloadResource() => ResourceSelected(CurrentEntry);

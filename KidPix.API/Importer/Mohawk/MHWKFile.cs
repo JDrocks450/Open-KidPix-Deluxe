@@ -73,20 +73,9 @@ namespace KidPix.API.Importer.Mohawk
 
         public async Task<KidPixResource?> TryImportResourceAsync(ResourceTableEntry ResourceDefinition)
         {
-            using MemoryStream stream = new MemoryStream();
+            MemoryStream stream = new MemoryStream();
             await ReadResourceDataAsync(stream, ResourceDefinition);
-
-            switch (ResourceDefinition.EnclosingType)
-            {
-                case CHUNK_TYPE.tWAV:
-                    //**WAV IMPORT                        
-                    return WAVImporter.Import(stream, ResourceDefinition);
-                case CHUNK_TYPE.tBMH:
-                case CHUNK_TYPE.tBMP:
-                    //RASTER IMPORT
-                    return MHWKRasterImporter.Import(stream, ResourceDefinition);            
-            }
-            return null;
+            return MHWKResourceImporterBase.DefaultImport(stream, ResourceDefinition);
         }
     }
 }

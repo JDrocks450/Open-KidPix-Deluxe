@@ -20,10 +20,6 @@ using System.Windows.Shapes;
 
 namespace KidPix.ResourceExplorer.Controls.ResourcePreview
 {
-    public interface IResourcePreviewControl : IDisposable
-    {
-        public void AttachResource(KidPixResource? Resource);
-    }
 
     /// <summary>
     /// Interaction logic for AudioPlayer.xaml

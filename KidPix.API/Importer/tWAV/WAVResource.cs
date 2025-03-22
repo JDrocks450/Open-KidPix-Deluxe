@@ -6,6 +6,7 @@ namespace KidPix.API.Importer.tWAV
     /// <summary>
     /// A WAVE resource file (tWAV)
     /// </summary>
+    [KidPixResourceAttribute(CHUNK_TYPE.tWAV)]
     public class WAVResource : KidPixResource, IDisposable
     {        
         /// <summary>
@@ -52,7 +53,7 @@ namespace KidPix.API.Importer.tWAV
 
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
             WaveCueStream?.Dispose();
             WaveCueStream = null;

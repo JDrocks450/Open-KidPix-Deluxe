@@ -1,11 +1,12 @@
 ﻿namespace KidPix.API.Importer.tBMP.Decompressor
 {
 
-    public partial class BMPRLEBrush
+    public partial class BMPRLE16Brush
     {
         public class RLEDrawCall
         {
             public long OFFSET { get; set; }
+            public long LENGTH { get; set; }
 
             public RLEDrawCall(long OFFSET)
             {

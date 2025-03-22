@@ -13,7 +13,8 @@ namespace KidPix.API.Importer.tWAV
     /// <summary>
     /// Used to import Wave file resources from a <see cref="CHUNK_TYPE.tWAV"/> chunk
     /// </summary>
-    public static class WAVImporter
+    [MHWKImporterAttribute(CHUNK_TYPE.tWAV)] 
+    public class WAVImporter : MHWKResourceImporterBase
     {
         const uint DATA_TAG = 0x44617461; // "Data"
 
@@ -22,15 +23,15 @@ namespace KidPix.API.Importer.tWAV
         /// </summary>
         /// <param name="Stream">The caller is responsible for Disposing this stream once it is no longer in use.</param>
         /// <returns></returns>
-        public static WAVResource Import(Stream Stream, ResourceTableEntry ParentEntry)
+        public override KidPixResource? Import(Stream Stream, ResourceTableEntry ParentEntry)
         {
-            EndianBinaryReader reader = new EndianBinaryReader(Stream);            
+            EndianBinaryReader reader = new EndianBinaryReader(Stream);
 
             WAVResource resource = new(ParentEntry);
 
-            while (reader.BaseStream.Position < reader.BaseStream.Length-4)
+            while (reader.BaseStream.Position < reader.BaseStream.Length - 4)
             {
-                uint callsign = reader.EnsureReadUInt32();
+                uint callsign = reader.ReadUInt32();
                 if (callsign != (uint)CHUNK_TYPE.MHWK)
                     continue;
                 reader.BaseStream.Seek(-4, SeekOrigin.Current);
@@ -43,20 +44,25 @@ namespace KidPix.API.Importer.tWAV
                 if (resource.IsComplete) break;
             }
 
+            Stream.Dispose();
+
             return resource;
         }
 
+        public static WAVResource? DefaultImport(Stream Stream, ResourceTableEntry ParentEntry) => 
+            GetDefaultImporter(CHUNK_TYPE.tWAV).Import(Stream, ParentEntry) as WAVResource;
+
         private static void TryImport(EndianBinaryReader Reader, WAVResource Resource)
         {
-            uint callsign = Reader.EnsureReadUInt32();
+            uint callsign = Reader.ReadUInt32();
             if (callsign != (uint)CHUNK_TYPE.MHWK)
                 throw new InvalidDataException("Read into a chunk expecting a MHWK chunk type which was not present.");
-            uint chunkLength = Reader.EnsureReadUInt32();
+            uint chunkLength = Reader.ReadUInt32();
             long position = Reader.BaseStream.Position;
 
             while (Reader.BaseStream.Position < position + chunkLength)
             {
-                LONG_CHUNK_TYPE tagType = (LONG_CHUNK_TYPE)Reader.EnsureReadUInt64();
+                LONG_CHUNK_TYPE tagType = (LONG_CHUNK_TYPE)Reader.ReadUInt64();
                 if (tagType != LONG_CHUNK_TYPE.WAVEDATA && tagType != LONG_CHUNK_TYPE.WAVECUE)
                     throw new InvalidDataException("Expected WAVECue# or WAVEData chunk, which was not present. ");
 
@@ -78,7 +84,7 @@ namespace KidPix.API.Importer.tWAV
         private static void ReadWaveData(EndianBinaryReader Reader, WAVResource Resource, long ChunkStart, uint ChunkLength)
         {
             long boundary = Math.Min(Reader.BaseStream.Length - Reader.BaseStream.Position, ChunkLength - ChunkStart);
-            long DataSize = Math.Min(Reader.EnsureReadUInt32() - 28, boundary);
+            long DataSize = Math.Min(Reader.ReadUInt32() - 28, boundary);
             Resource.WaveData = new WAVData(
                 SampleRate: Reader.ReadUInt16(),                // sample rate   | ushort | 2
                 SampleCount: Reader.ReadUInt32(),               // sample count  | uint   | 4         
@@ -86,8 +92,8 @@ namespace KidPix.API.Importer.tWAV
                 Channels: Reader.ReadByte(),                    // Channels      | byte   | 1
                 Encoding: (WAVEncodings)Reader.ReadUInt16(),    // Encoding      | ushort | 4
                 LoopCount: Reader.ReadUInt16(),                 // LoopCount     | ushort | 4
-                LoopStart: Reader.EnsureReadUInt32(),           // LoopStart     | uint   | 8
-                LoopEnd: Reader.EnsureReadUInt32()              // LoopEnd       | uint   | 8
+                LoopStart: Reader.ReadUInt32(),           // LoopStart     | uint   | 8
+                LoopEnd: Reader.ReadUInt32()              // LoopEnd       | uint   | 8
             );
             Reader.ReadByte(); // offset by 1 byte
             Resource.WaveData.AudioDataStream = new MemoryStream();
@@ -99,19 +105,19 @@ namespace KidPix.API.Importer.tWAV
             if (Resource.WaveCuePresent) return;
             WAVHeader header = Resource.Header = new()
             {
-                Unknown1 = Reader.EnsureReadUInt32(),
+                Unknown1 = Reader.ReadUInt32(),
                 Unknown2 = Reader.ReadUInt16(),
-                Unknown3 = Reader.EnsureReadUInt32(),
+                Unknown3 = Reader.ReadUInt32(),
                 Unknown4 = Reader.ReadUInt16(),
 
                 FileName = Reader.ReadCStr()
             };
 
-            if (Reader.EnsureReadUInt32() != DATA_TAG)
+            if (Reader.ReadUInt32() != DATA_TAG)
                 throw new InvalidDataException("Expected a 'Data' tag but it was not present. ");
 
             long boundary = Math.Min(Reader.BaseStream.Length - Reader.BaseStream.Position, ChunkLength - ChunkStart);
-            long DataSize = Math.Min(Reader.EnsureReadUInt32(), boundary);
+            long DataSize = Math.Min(Reader.ReadUInt32(), boundary);
             Resource.WaveCueStream = new MemoryStream((int)DataSize);
             Reader.BaseStream.CopyToExact(Resource.WaveCueStream, (int)DataSize);
         }

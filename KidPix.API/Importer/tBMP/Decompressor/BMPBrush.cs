@@ -26,7 +26,7 @@ namespace KidPix.API.Importer.tBMP.Decompressor
         {
             PixelFormat Format = Header.BitDepthDescription switch
             {
-                BitmapFormat.kBitsPerPixel16 => PixelFormat.Format16bppRgb565,
+                BitmapFormat.kBitsPerPixel16 => PixelFormat.Format16bppRgb555,
                 BitmapFormat.kBitsPerPixel8 => PixelFormat.Format8bppIndexed,
                 BitmapFormat.kBitsPerPixel24 => PixelFormat.Format24bppRgb,
             };
@@ -34,7 +34,7 @@ namespace KidPix.API.Importer.tBMP.Decompressor
             var bmp = new Bitmap(Header.Width, Header.Height, Format);
 
             int expectedSize = Header.BytesPerRow * Header.Height;
-            if (expectedSize > RawData.Length)
+            if (expectedSize != RawData.Length)
                 Array.Resize(ref RawData, expectedSize);
 
             BitmapData bmpData = bmp.LockBits(new Rectangle(0, 0,bmp.Width,bmp.Height),ImageLockMode.WriteOnly,Format);

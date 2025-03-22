@@ -14,7 +14,7 @@ namespace KidPix.ResourceExplorer.Controls
     /// <summary>
     /// Interaction logic for ResourcePreviewControl.xaml
     /// </summary>
-    public partial class ResourcePreviewControl : ContentControl, INotifyPropertyChanged
+    public partial class ResourcePreviewControl : ContentControl, INotifyPropertyChanged, IResourcePreviewControl
     {
         private static Dictionary<Type, IResourcePreviewControl> _controls;
 
@@ -42,7 +42,8 @@ namespace KidPix.ResourceExplorer.Controls
                 _controls = new()
                 {
                     { typeof(WAVResource),new AudioPlayer() },
-                    { typeof(BMPResource),new RasterImageViewer() }
+                    { typeof(BMPResource),new RasterImageViewer() },
+                    { typeof(GenericKidPixResource),new HexEditorResourcePreview() }
                 };
             }
         }
@@ -57,11 +58,19 @@ namespace KidPix.ResourceExplorer.Controls
                 bmpResource.BitmapImage.Save("test.bmp");
             }
 
+            Dispose();
+
             ContentFrame.Content = _controls[Resource.GetType()];
             _controls[Resource.GetType()].AttachResource(Resource);
 
             ResourceContent = Resource;
             ResourceInformationBlock.Breakdown(Resource);
-        }        
+        }
+
+        public void Dispose()
+        {
+            if (ContentFrame.Content != null && ContentFrame.Content is IResourcePreviewControl control)
+                control.Dispose();
+        }
     }
 }

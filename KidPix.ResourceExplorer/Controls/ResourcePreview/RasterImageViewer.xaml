@@ -9,16 +9,16 @@
     <DockPanel>
         <DockPanel DockPanel.Dock="Top" Margin="10,10,10,0">
             <Button Name="StepOverButton" DockPanel.Dock="Right" Padding="10,5" Click="StepOverButton_Click">Step Over</Button>
-            <Button Name="NextLineButton" DockPanel.Dock="Right" Margin="5,0" Padding="10,5">Next Scan Line</Button>
+            <Button Name="NextLineButton" DockPanel.Dock="Right" Margin="5,0" Padding="10,5" Click="NextLineButton_Click">Next Scan Line</Button>
             <Button Name="RunButton" DockPanel.Dock="Right" Padding="10,5" Click="RunButton_Click">Run</Button>
-            <TextBox x:Name="CodeRunLinePreviewBox" FontFamily="Consolas"/>
+            <TextBox x:Name="CodeRunLinePreviewBox" FontFamily="Consolas" FontSize="16"/>
         </DockPanel>
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*" Name="PaletteRule"/>
                 <ColumnDefinition Width="3*"/>
             </Grid.ColumnDefinitions>
-            <DockPanel>
+            <DockPanel Name="CollapsablePalettePane">
                 <Viewbox Margin="10">
                     <Border BorderBrush="Black" Background="White" BorderThickness="1,1,0,0">
                         <UniformGrid Name="PaletteEntriesGrid" Columns="8" Width="120"/>

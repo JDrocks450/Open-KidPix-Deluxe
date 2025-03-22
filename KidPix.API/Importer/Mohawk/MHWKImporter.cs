@@ -45,30 +45,30 @@ namespace KidPix.API.Importer.Mohawk
 
         static void ReadMohawkHeader(in EndianBinaryReader binaryReader, out uint ChunkSize)
         {
-            uint callsign = binaryReader.EnsureReadUInt32(); // must be Mohawk Archive
+            uint callsign = binaryReader.ReadUInt32(); // must be Mohawk Archive
             if (callsign != (uint)CHUNK_TYPE.MHWK)
                 throw new InvalidDataException($"This file cannot be read by this application. (Chunk type is {callsign})");
-            ChunkSize = binaryReader.EnsureReadUInt32();
+            ChunkSize = binaryReader.ReadUInt32();
             if (ChunkSize == 0)
                 throw new InvalidDataException("This file cannot be read by this application. (Size is 0)");
         }
 
         static MHWKFileTable ReadFileTable(in EndianBinaryReader binaryReader)
         {
-            if (binaryReader.EnsureReadUInt32() != (uint)CHUNK_TYPE.RSRC)
+            if (binaryReader.ReadUInt32() != (uint)CHUNK_TYPE.RSRC)
                 throw new InvalidDataException("RSRC Chunk is not present.");
 
             ushort version = binaryReader.ReadUInt16(Endianness.LittleEndian);
 
             ushort compaction = binaryReader.ReadUInt16();
-            uint rsrcSize = binaryReader.EnsureReadUInt32();
-            uint absOffset = binaryReader.EnsureReadUInt32();
+            uint rsrcSize = binaryReader.ReadUInt32();
+            uint absOffset = binaryReader.ReadUInt32();
             ushort fileTableOffset = binaryReader.ReadUInt16();
             ushort fileTableSize = binaryReader.ReadUInt16();
 
             // First, read in the file table
             binaryReader.BaseStream.Seek(absOffset + fileTableOffset, SeekOrigin.Begin);
-            uint entries = binaryReader.EnsureReadUInt32();
+            uint entries = binaryReader.ReadUInt32();
             MHWKFileTable fileTable = new(entries, absOffset)
             {
                 FileTableOffset = fileTableOffset
@@ -80,7 +80,7 @@ namespace KidPix.API.Importer.Mohawk
             {
                 FileTableEntry entry = new();
 
-                entry.Offset = binaryReader.EnsureReadUInt32();
+                entry.Offset = binaryReader.ReadUInt32();
                 entry.Size = binaryReader.ReadUInt16();
                 entry.Size += binaryReader.ReadByte() << 16; // Get bits 15-24 of size too
                 entry.Flags = binaryReader.ReadByte();
@@ -112,7 +112,7 @@ namespace KidPix.API.Importer.Mohawk
             //map types to names and resources
             for (ushort i = 0; i < typeCount; i++)
             { // foreach type in Types
-                CHUNK_TYPE tag = (CHUNK_TYPE)binaryReader.EnsureReadUInt32();
+                CHUNK_TYPE tag = (CHUNK_TYPE)binaryReader.ReadUInt32();
 
                 //**read as str
                 binaryReader.BaseStream.Seek(-sizeof(uint), SeekOrigin.Current);
