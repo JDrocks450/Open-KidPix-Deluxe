@@ -7,6 +7,10 @@ using System.Threading.Tasks;
 
 namespace KidPix.API.Util
 {
+    /// <summary>
+    /// Allows functions to read a <see cref="Stream"/> in either Byte Order
+    /// <para/> Does NOT need to be Disposed if you intend on continuing to use the <see cref="Stream"/>
+    /// </summary>
     public class EndianBinaryReader : IDisposable
     {
         private readonly Stream stream;

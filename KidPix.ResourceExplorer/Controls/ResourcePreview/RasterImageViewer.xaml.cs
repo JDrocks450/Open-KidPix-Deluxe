@@ -1,5 +1,5 @@
 ﻿using KidPix.API.Importer;
-using KidPix.API.Importer.tBMP;
+using KidPix.API.Importer.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -162,19 +162,19 @@ namespace KidPix.ResourceExplorer.Controls.ResourcePreview
 
         private void StepOverButton_Click(object sender, RoutedEventArgs e)
         {
-            API.Importer.tBMP.Decompressor.BMPRLE16Brush.DEBUG_MAX_COMMANDS++;
+            API.Importer.tBMP.Decompressor.BMPRLE16BrushDebug.DEBUG_MAX_COMMANDS++;
             (Application.Current.MainWindow as MainWindow)?.CurrentResExplorerPage?.ReloadResource();
         }
 
         private void RunButton_Click(object sender, RoutedEventArgs e)
         {
-            API.Importer.tBMP.Decompressor.BMPRLE16Brush.DEBUG_MAX_COMMANDS=int.MaxValue;
+            API.Importer.tBMP.Decompressor.BMPRLE16BrushDebug.DEBUG_MAX_COMMANDS = int.MaxValue;
             (Application.Current.MainWindow as MainWindow)?.CurrentResExplorerPage?.ReloadResource();
         }
 
         private void NextLineButton_Click(object sender, RoutedEventArgs e)
         {
-            API.Importer.tBMP.Decompressor.BMPRLE16Brush.DEBUG_RUNNING_UNTIL_NEXT_SCAN = true;
+            API.Importer.tBMP.Decompressor.BMPRLE16BrushDebug.DEBUG_RUNNING_UNTIL_NEXT_SCAN = true;
             (Application.Current.MainWindow as MainWindow)?.CurrentResExplorerPage?.ReloadResource();
         }
 
@@ -193,15 +193,16 @@ namespace KidPix.ResourceExplorer.Controls.ResourcePreview
             _brushRLECallstackWindow.Hide();
 
             if ((_currentResource?.Header?.DrawAlgorithm ?? BitmapDrawCompression.kDrawRaw) is not BitmapDrawCompression.kDrawRLE) return;
-            if (API.Importer.tBMP.Decompressor.BMPRLE16Brush.DEBUG_LAST_CALL is not null)
+            _debuggerWindow.Show(); // SHOW STREAM
+            if (API.Importer.tBMP.Decompressor.BMPRLE16BrushDebug.DEBUG_LAST_CALL is not null)
             {
                 //HEX EDITOR DEBUG WINDOW
-                CodeRunLinePreviewBox.Text = API.Importer.tBMP.Decompressor.BMPRLE16Brush.DEBUG_LAST_CALL.ToString();
-                Debug_JumpToDrawCallOffset16(API.Importer.tBMP.Decompressor.BMPRLE16Brush.DEBUG_LAST_CALL);                
-                if (API.Importer.tBMP.Decompressor.BMPRLE16Brush.DEBUG_LAST_ERROR != null)
+                CodeRunLinePreviewBox.Text = API.Importer.tBMP.Decompressor.BMPRLE16BrushDebug.DEBUG_LAST_CALL.ToString();
+                Debug_JumpToDrawCallOffset16(API.Importer.tBMP.Decompressor.BMPRLE16BrushDebug.DEBUG_LAST_CALL);                
+                if (API.Importer.tBMP.Decompressor.BMPRLE16BrushDebug.DEBUG_LAST_ERROR != null)
                 { // ENDED WITH AN ERROR
                     CodeRunLinePreviewBox.Foreground = Brushes.Red;
-                    CodeRunLinePreviewBox.ToolTip = API.Importer.tBMP.Decompressor.BMPRLE16Brush.DEBUG_LAST_ERROR;
+                    CodeRunLinePreviewBox.ToolTip = API.Importer.tBMP.Decompressor.BMPRLE16BrushDebug.DEBUG_LAST_ERROR;
                 }
             }
 
@@ -210,7 +211,7 @@ namespace KidPix.ResourceExplorer.Controls.ResourcePreview
             //CALLSTACK DBG WINDOW
             _callstackStackpanel.Children.Clear();
             foreach(KeyValuePair<int, List<API.Importer.tBMP.Decompressor.BMPRLE16Brush.RLEDrawCall>> 
-                scanGroup in API.Importer.tBMP.Decompressor.BMPRLE16Brush.DEBUG_DrawCallsByRow)
+                scanGroup in API.Importer.tBMP.Decompressor.BMPRLE16BrushDebug.DEBUG_DrawCallsByRow)
             {
                 int scanLine = scanGroup.Key;                
 

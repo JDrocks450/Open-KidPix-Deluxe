@@ -1,4 +1,4 @@
-﻿namespace KidPix.API.Importer.tBMP
+﻿namespace KidPix.API.Importer.Graphics
 {
     /// <summary>
     /// Header information for this <see cref="BMPResource"/> object
@@ -9,19 +9,21 @@
     /// <param name="Format"></param>
     public record class BMPHeader(int Width, int Height, int BytesPerRow, ushort Format)
     {
-        public record class BMPColorTable(ushort TableSize, byte RgbBits, params byte[] Palette);        
+        public const int BMPHEADER_SIZE = sizeof(ushort) * 4;
+
+        public record class BMPColorTable(ushort TableSize, byte RgbBits, params byte[] Palette);
 
         /// <summary>
         /// Gets the BitsPerPixel setting of this resource from the <see cref="Format"/> property
         /// </summary>
         public byte BitsPerPixel => BitDepthDescription switch
         {
-            BitmapFormat.kBitsPerPixel1 =>  1,
-            BitmapFormat.kBitsPerPixel4 =>  4,
-            BitmapFormat.kBitsPerPixel8 =>  8,
+            BitmapFormat.kBitsPerPixel1 => 1,
+            BitmapFormat.kBitsPerPixel4 => 4,
+            BitmapFormat.kBitsPerPixel8 => 8,
             BitmapFormat.kBitsPerPixel16 => 16,
             BitmapFormat.kBitsPerPixel24 => 24,
-            _ => throw new InvalidDataException("Unknown bits per pixel")                    
+            _ => throw new InvalidDataException("Unknown bits per pixel")
         };
         public BitmapFormat BitDepthDescription => (BitmapFormat)(Format & (ushort)BitmapFormat.kBitsPerPixelMask);
         /// <summary>
@@ -35,5 +37,5 @@
 
         public BMPColorTable? ColorTable { get; internal set; } = null;
     }
-}    
+}
 

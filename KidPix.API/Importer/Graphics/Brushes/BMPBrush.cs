@@ -2,9 +2,12 @@
 using System.Drawing;
 using System.Runtime.InteropServices;
 
-namespace KidPix.API.Importer.tBMP.Decompressor
+namespace KidPix.API.Importer.Graphics.Brushes
 {
-    public class BMPBrush
+    /// <summary>
+    /// A base class for brushes that has functionality for painting raw data to a <see cref="Bitmap"/>
+    /// </summary>
+    public abstract class BMPBrush
     {
         public BMPBrush(BMPHeader Header) => this.Header = Header;
         public BMPBrush(BMPHeader Header, byte[] RawData) : this(Header) => this.RawData = RawData;
@@ -40,9 +43,9 @@ namespace KidPix.API.Importer.tBMP.Decompressor
             if (expectedSize != RawData.Length)
                 Array.Resize(ref RawData, expectedSize);
 
-            BitmapData bmpData = bmp.LockBits(new Rectangle(0, 0,bmp.Width,bmp.Height),ImageLockMode.WriteOnly,Format);
+            BitmapData bmpData = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.WriteOnly, Format);
 
-            IntPtr pNative = bmpData.Scan0;
+            nint pNative = bmpData.Scan0;
             Marshal.Copy(RawData, 0, pNative, expectedSize);
             bmp.UnlockBits(bmpData);
 

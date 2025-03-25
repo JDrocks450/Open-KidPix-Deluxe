@@ -1,5 +1,5 @@
 ﻿using KidPix.API.Importer;
-using KidPix.API.Importer.tBMP;
+using KidPix.API.Importer.Graphics;
 using KidPix.API.Importer.tWAV;
 using KidPix.ResourceExplorer.Controls.ResourcePreview;
 using NAudio.Wave;
@@ -59,6 +59,28 @@ namespace KidPix.ResourceExplorer.Controls
             }
 
             Dispose();
+
+            if (Resource is BMHResource bmh)
+            {
+                var frameSource = bmh.Table[0];
+                var treeView = new ListBox()
+                {
+                    ItemsSource = frameSource.Select(x => $"Frame {x}")
+                };
+                Window hWnd = new()
+                {
+                    Content = treeView,
+                    SizeToContent = SizeToContent.WidthAndHeight
+                };
+                BMHFrameInfo GetSelectedFrame() => frameSource[treeView.SelectedIndex];
+                treeView.SelectionChanged += delegate
+                {
+                    if (treeView.SelectedIndex <= -1 || treeView.SelectedIndex >= frameSource.Count) return;
+                    hWnd.Close();
+                };                               
+                hWnd.ShowDialog();
+                Resource = bmh.ImportFrame(GetSelectedFrame());
+            }
 
             ContentFrame.Content = _controls[Resource.GetType()];
             _controls[Resource.GetType()].AttachResource(Resource);

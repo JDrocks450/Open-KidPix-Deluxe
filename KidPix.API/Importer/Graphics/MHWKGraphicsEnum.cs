@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace KidPix.API.Importer.tBMP
+﻿namespace KidPix.API.Importer.Graphics
 {
+    /// <summary>
+    /// The graphics encoding used for this resource
+    /// </summary>
     public enum BitmapDrawCompression : ushort
     {
         kDrawMASK = 0x00f0,
@@ -14,7 +11,9 @@ namespace KidPix.API.Importer.tBMP
         kDrawMSRLE8 = 0x0020,
         kDrawRLE = 0x0030,
     }
-
+    /// <summary>
+    /// The compression algorithm used for this resource
+    /// </summary>
     public enum BitmapPackCompression : ushort
     {
         kPackMASK = 0x0f00,
@@ -24,7 +23,9 @@ namespace KidPix.API.Importer.tBMP
         kPackRiven = 0x0400,
         kPackXDec = 0x0f00,
     }
-
+    /// <summary>
+    /// A mask used for determining format information and secondarily will describe the bit-depth of this resource
+    /// </summary>
     public enum BitmapFormat : ushort
     {
         kBitsPerPixel1 = 0x0000,

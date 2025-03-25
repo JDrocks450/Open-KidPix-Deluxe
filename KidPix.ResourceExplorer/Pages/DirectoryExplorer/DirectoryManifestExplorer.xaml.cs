@@ -1,4 +1,5 @@
-﻿using KidPix.API.Directory;
+﻿using KidPix.API;
+using KidPix.API.Directory;
 using KidPix.API.Importer.Mohawk;
 using KidPix.ResourceExplorer.Model.Core;
 using System;

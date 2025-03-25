@@ -1,21 +1,62 @@
-﻿using System.Drawing;
+﻿#define DEBUG_ENABLED
+#undef DEBUG_ENABLED
+
+using System.Drawing;
+using KidPix.API.Importer.Graphics;
+using KidPix.API.Importer.Graphics.Brushes;
 using KidPix.API.Util;
+using static KidPix.API.Importer.tBMP.Decompressor.BMPRLE16Brush;
 
 namespace KidPix.API.Importer.tBMP.Decompressor
 {
+    public static class BMPRLE16BrushDebug
+    {
+        public const bool DEBUGGING_ENABLED =
+#if DEBUG_ENABLED
+            true;
+#else 
+            false;
+#endif
+        private const int SET_MAX_COMMANDS = DEBUGGING_ENABLED ? 1 : int.MaxValue;
+
+
+        private static int DEBUG_DrawCalls = 0;
+        public static int DEBUG_MAX_COMMANDS = SET_MAX_COMMANDS;
+        public static bool DEBUG_RUNNING_UNTIL_NEXT_SCAN = false;
+        public static Dictionary<int, List<RLEDrawCall>> DEBUG_DrawCallsByRow = new();
+        public static RLEDrawCall? DEBUG_LAST_CALL;
+        public static Exception? DEBUG_LAST_ERROR;
+
+        public static bool AssertCanContinue() => DEBUG_DrawCalls > DEBUG_MAX_COMMANDS && !DEBUG_RUNNING_UNTIL_NEXT_SCAN;
+        public static void IncNewCall() => DEBUG_DrawCalls++;
+
+        public static void AssertRowCompleted()
+        {
+            if (DEBUG_RUNNING_UNTIL_NEXT_SCAN && DEBUG_DrawCalls > DEBUG_MAX_COMMANDS)
+            {
+                //scan line completed, reset flag and set command amount to the amount of commands thus far + 1
+                DEBUG_RUNNING_UNTIL_NEXT_SCAN = false;
+                DEBUG_MAX_COMMANDS = DEBUG_DrawCalls + 1;
+            }
+        }
+
+        public static void ClearSession()
+        {
+            DEBUG_DrawCalls = 0;
+            DEBUG_LAST_ERROR = null;
+            DEBUG_MAX_COMMANDS = SET_MAX_COMMANDS;
+            DEBUG_DrawCallsByRow = new();
+            DEBUG_LAST_CALL = null;
+        }
+    }
+
     /// <summary>
     /// A Broderbund Mohawk Engine RLE16 Brush
     /// <para/>RLE16 is an improvement on their <see cref="BMPRLE8Brush"/> which was a very simple 8bpp Indexed Run Length Encoding strategy.
     /// <para/>It is more advanced making use of commands that condense repeated colors into one call, then have a stream of color bytes up until the next draw call.
     /// </summary>
     public partial class BMPRLE16Brush : BMPBrush
-    {
-        public static int DEBUG_MAX_COMMANDS = 1;
-        public static bool DEBUG_RUNNING_UNTIL_NEXT_SCAN = false;
-        public static Dictionary<int, List<RLEDrawCall>> DEBUG_DrawCallsByRow = new();
-        public static RLEDrawCall? DEBUG_LAST_CALL;
-        public static Exception? DEBUG_LAST_ERROR;
-
+    {       
         public Stream? CompressedImageDataStream { get; }
         public Endianness Endian { get; } = Endianness.BigEndian;
 
@@ -30,7 +71,7 @@ namespace KidPix.API.Importer.tBMP.Decompressor
 
         public static Bitmap? Paint(BMPHeader Header, Stream ImageData, Endianness Endian)
         {
-            DEBUG_LAST_ERROR = null;
+            BMPRLE16BrushDebug.ClearSession();
             if (ImageData == null) throw new NullReferenceException(nameof(ImageData));
             byte[] rawData = new byte[0];
             try
@@ -39,7 +80,7 @@ namespace KidPix.API.Importer.tBMP.Decompressor
             }
             catch(Exception e)
             {
-                DEBUG_LAST_ERROR = e;
+                BMPRLE16BrushDebug.DEBUG_LAST_ERROR = e;
             }
             return Plaster(Header, rawData);
         }
@@ -57,8 +98,7 @@ namespace KidPix.API.Importer.tBMP.Decompressor
         private static void Brush(BMPHeader Header, Stream ImageData, Endianness Endian, ref byte[] Output)
         {
             //DIAGNOSTIC
-            Dictionary<int, List<RLEDrawCall>> drawCallsByRow = DEBUG_DrawCallsByRow = new();
-            int DEBUG_DrawCalls = 0;
+            Dictionary<int, List<RLEDrawCall>> drawCallsByRow = BMPRLE16BrushDebug.DEBUG_DrawCallsByRow = new();
 
             var _data = ImageData;
             var _header = Header;
@@ -72,7 +112,7 @@ namespace KidPix.API.Importer.tBMP.Decompressor
             while (ImageData.Position < ImageData.Length)
             {
                 //DEBUG - halt to show progress and learn format of this compression algorithm
-                if (DEBUG_DrawCalls > DEBUG_MAX_COMMANDS && !DEBUG_RUNNING_UNTIL_NEXT_SCAN) break;
+                if (BMPRLE16BrushDebug.AssertCanContinue()) break;
 
                 List<RLEDrawCall> drawCalls = new();
                 drawCallsByRow.Add(scanline, drawCalls);
@@ -98,7 +138,7 @@ namespace KidPix.API.Importer.tBMP.Decompressor
                     int localReadBytes = readBytes;
 
                     //DEBUG - halt to show progress and learn format of this compression algorithm
-                    if (DEBUG_DrawCalls > DEBUG_MAX_COMMANDS && !DEBUG_RUNNING_UNTIL_NEXT_SCAN) break;
+                    if (BMPRLE16BrushDebug.AssertCanContinue()) break;
 
                     //Check if we're inside Output Scan Line
                     if (rawDataIndex > (Header.BytesPerRow * (scanline + 1)))
@@ -108,7 +148,7 @@ namespace KidPix.API.Importer.tBMP.Decompressor
                             $" {rawDataIndex} / {(Header.BytesPerRow * (scanline + 1))}");
                     }
 
-                    RLEDrawCall drawCall = DEBUG_LAST_CALL = new(ImageData.Position); // make a new draw call for debug purposes
+                    RLEDrawCall drawCall = BMPRLE16BrushDebug.DEBUG_LAST_CALL = new(ImageData.Position); // make a new draw call for debug purposes
 
                     byte OPCODE = drawCall.OPCODE1 = reader.ReadByte(); // OPCODE 1 0x80 (10000000) is where is may split between one function or another
                     readBytes += 1 * sizeof(byte);
@@ -121,8 +161,8 @@ namespace KidPix.API.Importer.tBMP.Decompressor
                     if (OPCODE == 0x0 && REPEAT_LENGTH == 0x0) continue;
 
                     //DEBUG--
-                    DEBUG_DrawCalls++;
-                    drawCalls.Add(drawCall);        
+                    BMPRLE16BrushDebug.IncNewCall();
+                    drawCalls.Add(drawCall);
                     //**
 
                     ushort OPCODEPARAM1 = drawCall.OPCODEPARAM1 = reader.ReadUInt16(); // unknown
@@ -183,12 +223,7 @@ namespace KidPix.API.Importer.tBMP.Decompressor
                 reader.BaseStream.Seek(scanPosition + scanLineSizeBytes, SeekOrigin.Begin);
 
                 //DEBUG
-                if (DEBUG_RUNNING_UNTIL_NEXT_SCAN && DEBUG_DrawCalls > DEBUG_MAX_COMMANDS)
-                {
-                    //scan line completed, reset flag and set command amount to the amount of commands thus far + 1
-                    DEBUG_RUNNING_UNTIL_NEXT_SCAN = false;
-                    DEBUG_MAX_COMMANDS = DEBUG_DrawCalls + 1;
-                }
+                BMPRLE16BrushDebug.AssertRowCompleted();
             }
             
             IEnumerable<byte> opcodes = drawCallsByRow.SelectMany(x => x.Value).Select(y => y.OPCODE1).Distinct();            

@@ -1,33 +1,31 @@
-﻿using KidPix.API.Importer.Mohawk;
+﻿using KidPix.API.Importer.Graphics.Brushes;
+using KidPix.API.Importer.Mohawk;
 using KidPix.API.Importer.tBMP.Decompressor;
 using KidPix.API.Util;
-using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
-using System.Linq;
 using System.Reflection.PortableExecutable;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace KidPix.API.Importer.tBMP
+namespace KidPix.API.Importer.Graphics
 {
     /// <summary>
     /// Imports graphics resources from: <see cref="CHUNK_TYPE.tBMH"/>, <see cref="CHUNK_TYPE.tBMP"/> or other recognized graphics chunks
     /// </summary>
-    [MHWKImporterAttribute(CHUNK_TYPE.tBMP)]
-    public class MHWKRasterImporter : MHWKResourceImporterBase
+    [MHWKImporter(CHUNK_TYPE.tBMP)]
+    public class MHWKBitmapImporter : MHWKResourceImporterBase
     {
-        private static bool AttemptGeneralMohawkBitmap(EndianBinaryReader reader, out BMPHeader? Header, out Bitmap? Resource)
-        {
-            Resource = null;
-            BMPHeader header = Header = new BMPHeader(
+        public static BMPHeader ReadBMPHeader(Stream Stream) => ReadBMPHeader(new EndianBinaryReader(Stream));
+        public static BMPHeader ReadBMPHeader(EndianBinaryReader reader) => 
+            new BMPHeader(
                 Width: reader.ReadUInt16() & 0x3FFF,
                 Height: reader.ReadUInt16() & 0x3FFF,
                 BytesPerRow: reader.ReadUInt16() & 0x3FFE,
                 Format: reader.ReadUInt16()
             );
+
+        private static bool AttemptGeneralMohawkBitmap(EndianBinaryReader reader, out BMPHeader? Header, out Bitmap? Resource)
+        {
+            Resource = null;
+            var header = Header = ReadBMPHeader(reader);
 
             //decompress
             Stream? decompressedImageStream = null;
@@ -35,7 +33,7 @@ namespace KidPix.API.Importer.tBMP
             bool decompressed = false;
             switch (compression)
             {
-                case BitmapPackCompression.kPackNone:                    
+                case BitmapPackCompression.kPackNone:
                     decompressedImageStream = reader.BaseStream;
                     break;
                 case BitmapPackCompression.kPackLZ:
@@ -66,11 +64,11 @@ namespace KidPix.API.Importer.tBMP
                 case BitmapDrawCompression.kDrawRLE8:
                     Resource = BMPRLE8Brush.Paint(Header, decompressedImageStream, Endianness.BigEndian);
                     break;
-                case BitmapDrawCompression.kDrawRaw:                    
+                case BitmapDrawCompression.kDrawRaw:
                     Resource = BMPBrush.Plaster(Header, decompressedImageStream);
                     break;
                 default:
-                    throw new Exception("Unknown draw routine: " + drawCompression);                    
+                    throw new Exception("Unknown draw routine: " + drawCompression);
             }
             if (decompressed)
                 decompressedImageStream?.Dispose(); // CHANGE LATER -- we should replace the compressed image stream passed into the import method with this one
@@ -86,5 +84,5 @@ namespace KidPix.API.Importer.tBMP
             return new BMPResource(ParentEntry, header) { BitmapImage = resource, ImageStream = Stream };
         }
     }
-}    
+}
 

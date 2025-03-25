@@ -14,7 +14,7 @@ using KidPix.ResourceExplorer.Pages.ResourceExplorer;
 using KidPix.ResourceExplorer.Pages.DirectoryExplorer;
 using KidPix.API.Directory;
 using System.IO;
-using KidPix.API.Importer.Mohawk;
+using KidPix.API;
 
 namespace KidPix.ResourceExplorer
 {

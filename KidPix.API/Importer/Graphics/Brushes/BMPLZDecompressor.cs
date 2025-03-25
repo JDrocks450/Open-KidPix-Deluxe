@@ -1,25 +1,31 @@
 ﻿using System.Drawing;
 using KidPix.API.Util;
 
-namespace KidPix.API.Importer.tBMP.Decompressor
+namespace KidPix.API.Importer.Graphics.Brushes
 {
     //////////////////////////////////////////
     // LZ Unpacker -- https://github.com/scummvm/scummvm/blob/master/engines/mohawk/bitmap.cpp#L182
     // Translated to C# by me (bisquick) (JDrocks450)
     //////////////////////////////////////////
+    /// <summary>
+    /// A decompressor that will decompress a LZ-compressed data stream for use in Mohawk games published by Br0derbund
+    /// <para/>See: <see href="https://insidethelink.ortiche.net/wiki/index.php/Mohawk_Bitmaps"/>
+    /// <para/>Original C++ implementation can be found here: <see href="https://github.com/scummvm/scummvm/blob/master/engines/mohawk/bitmap.cpp#L182"/>
+    /// </summary>
     internal static class BMPLZDecompressor
     {
         const int LEN_BITS = 6;
         const int MIN_STRING = 3;                                   // lower limit for string length
-        const int POS_BITS = (16 - LEN_BITS);
-        const int MAX_STRING = ((1 << LEN_BITS) + MIN_STRING - 1);  // upper limit for string length
-        const int CBUFFERSIZE = (1 << POS_BITS);                    // size of the circular buffer
-        const int POS_MASK = (CBUFFERSIZE - 1);
+        const int POS_BITS = 16 - LEN_BITS;
+        const int MAX_STRING = (1 << LEN_BITS) + MIN_STRING - 1;  // upper limit for string length
+        const int CBUFFERSIZE = 1 << POS_BITS;                    // size of the circular buffer
+        const int POS_MASK = CBUFFERSIZE - 1;
 
         public static Stream? Decompress(BMPHeader Header, EndianBinaryReader reader)
         {
             uint uncompressedSize = reader.ReadUInt32();
-            /* uint compressedSize = */reader.ReadUInt32();
+            /* uint compressedSize = */
+            reader.ReadUInt32();
             ushort dictSize = reader.ReadUInt16();
 
             // We only support the buffer size of 0x400
@@ -41,8 +47,8 @@ namespace KidPix.API.Importer.tBMP.Decompressor
             // Expand the output buffer to at least the ring buffer size
             uint outBufSize = (uint)Math.Max(uncompressedSize, CBUFFERSIZE);
             byte[] arrayOutput = new byte[outBufSize];
-            fixed(byte* outputData = &arrayOutput[0]) 
-            {                 
+            fixed (byte* outputData = &arrayOutput[0])
+            {
                 byte* dst = outputData;
                 byte* buf = dst;
 
@@ -68,7 +74,7 @@ namespace KidPix.API.Importer.tBMP.Decompressor
                     {
                         ushort offLen = Reader.ReadUInt16();
                         ushort stringLen = (ushort)((offLen >> POS_BITS) + MIN_STRING);
-                        ushort stringPos = (ushort)((offLen + MAX_STRING) & POS_MASK);
+                        ushort stringPos = (ushort)(offLen + MAX_STRING & POS_MASK);
 
                         bytesOut += stringLen;
                         if (bytesOut > uncompressedSize)
@@ -90,7 +96,7 @@ namespace KidPix.API.Importer.tBMP.Decompressor
                                         strPtr = outputData;
                                     }
                                 }
-                                insertPos = (ushort)((insertPos + stringLen) & POS_MASK);
+                                insertPos = (ushort)(insertPos + stringLen & POS_MASK);
                                 if (bytesOut >= uncompressedSize)
                                     break;
                                 continue;

@@ -9,9 +9,12 @@ using System.IO;
 using KidPix.API.Util;
 using KidPix.API.Importer.tWAV;
 
-namespace KidPix.API.Importer.tBMP.Decompressor
+namespace KidPix.API.Importer.Graphics.Brushes
 {
-
+    /// <summary>
+    /// A brush for painting a Run-Length-Encoded Bitmap that is 8bpp
+    /// <para/>See: <see href="https://insidethelink.ortiche.net/wiki/index.php/Mohawk_Bitmaps"/>
+    /// </summary>
     public class BMPRLE8Brush : BMPBrush
     {
         public Stream? CompressedImageDataStream { get; }
@@ -31,22 +34,22 @@ namespace KidPix.API.Importer.tBMP.Decompressor
             if (ImageData == null) throw new NullReferenceException(nameof(ImageData));
             byte[] rawData = Brush(Header, ImageData, Endian);
             return Plaster(Header, rawData);
-        }        
+        }
 
         private static byte[] Brush(BMPHeader Header, Stream ImageData, Endianness Endian)
         {
             var _data = ImageData;
             var _header = Header;
             EndianBinaryReader _reader = new(_data);
-            
+
             int size = _header.BytesPerRow * _header.Height;
             byte[] rawData = new byte[size];
-            
+
             for (ushort i = 0; i < _header.Height; i++)
             {
                 uint rowByteCount = _reader.ReadUInt16(Endian);
-                long startPos = _data.Position;                                
-                int rawDataIndex = (Header.BytesPerRow * i);
+                long startPos = _data.Position;
+                int rawDataIndex = Header.BytesPerRow * i;
                 ushort remaining = (ushort)_header.Width;
 
                 while (remaining > 0)
@@ -61,7 +64,7 @@ namespace KidPix.API.Importer.tBMP.Decompressor
                     {
                         byte val = _reader.ReadByte();
                         Array.Fill(rawData, val, rawDataIndex, runLen);
-                        
+
                     }
                     else
                     {
@@ -70,7 +73,7 @@ namespace KidPix.API.Importer.tBMP.Decompressor
                     rawDataIndex += runLen;
                     remaining -= runLen;
                 }
-                _data.Seek(startPos + rowByteCount,SeekOrigin.Begin);
+                _data.Seek(startPos + rowByteCount, SeekOrigin.Begin);
             }
             return rawData;
         }

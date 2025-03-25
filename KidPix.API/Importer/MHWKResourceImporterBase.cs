@@ -38,7 +38,7 @@ namespace KidPix.API.Importer
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        protected static MHWKResourceImporterBase GetDefaultImporter(CHUNK_TYPE Type)
+        internal static MHWKResourceImporterBase GetDefaultImporter(CHUNK_TYPE Type)
         {
             if (_generalImporters.TryGetValue(Type, out MHWKResourceImporterBase? importer))
                 return importer;
@@ -54,7 +54,7 @@ namespace KidPix.API.Importer
         /// </summary>
         /// <param name="Type"></param>
         /// <returns></returns>
-        protected static Type GetCorrespondingImporterType(CHUNK_TYPE Type) =>
+        internal static Type GetCorrespondingImporterType(CHUNK_TYPE Type) =>
             typeof(MHWKResourceImporterBase).Assembly.GetTypes().FirstOrDefault(x => x.GetCustomAttribute<MHWKImporterAttribute>()?.Match(Type) ?? false)
                 ?? typeof(MHWKGeneralImporter);
         /// <summary>
@@ -62,7 +62,7 @@ namespace KidPix.API.Importer
         /// </summary>
         /// <param name="Type"></param>
         /// <returns></returns>
-        protected static Type GetCorrespondingResourceType(CHUNK_TYPE Type) =>
+        internal static Type GetCorrespondingResourceType(CHUNK_TYPE Type) =>
             typeof(MHWKResourceImporterBase).Assembly.GetTypes().FirstOrDefault(x => x.GetCustomAttribute<KidPixResourceAttribute>()?.Match(Type) ?? false)
                 ?? typeof(GenericKidPixResource);
 

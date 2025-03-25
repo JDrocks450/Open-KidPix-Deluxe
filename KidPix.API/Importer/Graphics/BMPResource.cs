@@ -1,12 +1,12 @@
 ﻿using KidPix.API.Importer.Mohawk;
 using System.Drawing;
 
-namespace KidPix.API.Importer.tBMP
+namespace KidPix.API.Importer.Graphics
 {
     /// <summary>
-    /// A <see cref="KidPixResource"/> that contains Raster Image data
+    /// A <see cref="KidPixResource"/> that contains a <see cref="Bitmap"/>
     /// </summary>
-    [KidPixResourceAttribute(CHUNK_TYPE.tBMP)] 
+    [KidPixResource(CHUNK_TYPE.tBMP)]
     public class BMPResource : KidPixResource, IDisposable
     {
         public BMPResource(ResourceTableEntry ParentEntry, BMPHeader Header) : base(ParentEntry) => this.Header = Header;
@@ -22,5 +22,5 @@ namespace KidPix.API.Importer.tBMP
             BitmapImage = null;
         }
     }
-}    
+}
 

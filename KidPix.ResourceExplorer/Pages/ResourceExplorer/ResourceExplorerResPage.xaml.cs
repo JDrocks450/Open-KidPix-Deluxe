@@ -1,4 +1,5 @@
-﻿using KidPix.API.Directory;
+﻿using KidPix.API;
+using KidPix.API.Directory;
 using KidPix.API.Importer;
 using KidPix.API.Importer.kINI;
 using KidPix.API.Importer.Mohawk;
@@ -99,8 +100,8 @@ namespace KidPix.ResourceExplorer.Pages.ResourceExplorer
 
             ResourceInformation.Breakdown(Entry);
 
-            if (CurrentEntry != Entry)            
-                BMPRLE16Brush.DEBUG_MAX_COMMANDS = 1;            
+            if (CurrentEntry != Entry)
+                BMPRLE16BrushDebug.ClearSession();           
 
             CurrentEntry = Entry;
             SaveButton.IsEnabled = CurrentEntry != null;
