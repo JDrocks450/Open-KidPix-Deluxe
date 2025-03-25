@@ -13,16 +13,38 @@
             <ColumnDefinition Width="1*" MaxWidth="500"/>
             <ColumnDefinition Width="3*"/>
         </Grid.ColumnDefinitions>
-        <Grid Margin="10,10,5,10">
-            <TreeView Name="ResourceTypeExplorer">
-
-            </TreeView>
-        </Grid>
+        <TabControl Margin="10,10,5,10">
+            <TabItem x:Name="MainExplorerTab" Header="Mohawk Archive Explorer">
+                <Grid >
+                    <TreeView Name="ResourceExplorer">
+                        <TreeView.Resources>
+                            <Style TargetType="ContentControl">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="ContentControl">
+                                            <DockPanel>
+                                                <Image Margin="0,0,5,0" Source="/Assets/Img/JPSmall.png" Stretch="Uniform" DockPanel.Dock="Left" MinWidth="15" RenderOptions.BitmapScalingMode="NearestNeighbor"/>
+                                                <ContentPresenter Content="{TemplateBinding Content}"/>
+                                            </DockPanel>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </TreeView.Resources>
+                        <TreeViewItem>
+                            <TreeViewItem.Header>
+                                <ContentControl>This is blank file.</ContentControl>
+                            </TreeViewItem.Header>
+                        </TreeViewItem>
+                    </TreeView>
+                </Grid>
+            </TabItem>
+        </TabControl>
         <Grid Grid.Column="1" Margin="5,10,10,10">
             <DockPanel>
                 <UniformGrid DockPanel.Dock="Bottom" Margin="0,10,0,0" Columns="3" Height="27">
                     <Button x:Name="SaveButton" Click="SaveButton_Click">Save to Disk</Button>
-                    <Button x:Name="ImportButton" Click="ImportButton_Click">Import</Button>
+                    <Button></Button>
                     <Button></Button>
                 </UniformGrid>
                 <GroupBox Header="Resource Information" DockPanel.Dock="Bottom">

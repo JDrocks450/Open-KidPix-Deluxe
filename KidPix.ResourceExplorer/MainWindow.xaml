@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:KidPix.ResourceExplorer"
         mc:Ignorable="d"
-        Title="ResWindow" Height="768" Width="1024" Background="#FF0F0F0F">
+        Title="{Binding Content.Title, ElementName=PrimaryResPageFrame}" Height="768" Width="1024" Background="{StaticResource KidPixBannerBackgroundBrush}">
     <DockPanel>
         <Menu DockPanel.Dock="Top" Name="AppMainMenuStrip">
             <MenuItem Header="File"></MenuItem>

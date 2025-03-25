@@ -86,7 +86,8 @@ namespace KidPix.API.Importer.tBMP.Decompressor
 
                 //indicates the size of the scanline
                 ushort SCAN_SIZE = reader.ReadUInt16();      // the amount of "blocks" -- you multiply this number by 4 for byte amt of scanline           
-                ushort PARAM0 = reader.ReadUInt16(); // unknown
+                ushort ADVANCE_BYTES = reader.ReadUInt16();
+                rawDataIndex += ADVANCE_BYTES << 1;
                 long scanPosition = reader.BaseStream.Position;
                 //The first number is the size in bytes (after PARAM0), interpreted as 4 * number
                 int scanLineSizeBytes = SCAN_SIZE * 4;
@@ -101,20 +102,23 @@ namespace KidPix.API.Importer.tBMP.Decompressor
 
                     //Check if we're inside Output Scan Line
                     if (rawDataIndex > (Header.BytesPerRow * (scanline + 1)))
+                    {
+                        //rawDataIndex = (Header.BytesPerRow * (scanline));
                         throw new InvalidOperationException("Our position in the finished image is past where it is allowed to be." +
                             $" {rawDataIndex} / {(Header.BytesPerRow * (scanline + 1))}");
+                    }
 
                     RLEDrawCall drawCall = DEBUG_LAST_CALL = new(ImageData.Position); // make a new draw call for debug purposes
 
                     byte OPCODE = drawCall.OPCODE1 = reader.ReadByte(); // OPCODE 1 0x80 (10000000) is where is may split between one function or another
                     readBytes += 1 * sizeof(byte);
                     //If the OPCODE is below 0x80 -- this brush is unsupported.
-                    if (OPCODE < 0x80) 
-                        continue;
 
                     //The amount of times the proceeding pixel data is copied to the Output image
                     byte REPEAT_LENGTH = drawCall.OPCODE2 = reader.ReadByte(); 
-                    readBytes += 1 * sizeof(byte);                    
+                    readBytes += 1 * sizeof(byte);
+
+                    if (OPCODE == 0x0 && REPEAT_LENGTH == 0x0) continue;
 
                     //DEBUG--
                     DEBUG_DrawCalls++;
@@ -122,12 +126,25 @@ namespace KidPix.API.Importer.tBMP.Decompressor
                     //**
 
                     ushort OPCODEPARAM1 = drawCall.OPCODEPARAM1 = reader.ReadUInt16(); // unknown
-                    byte PIXELVAL2 = drawCall.PIXELVAL2 = reader.ReadByte(); // -- FLIP ENDIAN
+                    readBytes += (1 * sizeof(ushort));
+
+                    if (OPCODE == 0x0) // COPY DIRECT
+                    {
+                        int copyByteLength = REPEAT_LENGTH << 1;
+                        if (copyByteLength > (scanLineSizeBytes - readBytes))
+                            throw new InvalidOperationException($"The amount of bytes requested to copy: {copyByteLength} was longer than the scanline's available data: {scanLineSizeBytes}");
+                        drawCall.COPIED_BYTES = reader.BaseStream.Read(rawData, rawDataIndex, copyByteLength);
+                        rawDataIndex += copyByteLength;
+                        readBytes += copyByteLength;
+                        goto SAFEEXIT;
+                    }
+
                     byte PIXELVAL1 = drawCall.PIXELVAL1 = reader.ReadByte(); // This is the first output Pixel read
-                    byte PIXELVAL4 = drawCall.PIXELVAL4 = reader.ReadByte(); // -- FLIP ENDIAN
+                    byte PIXELVAL2 = drawCall.PIXELVAL2 = reader.ReadByte(); // -- Endian should be flipped in the BMPBrush.Plaster();
                     byte PIXELVAL3 = drawCall.PIXELVAL3 = reader.ReadByte(); // This is the second output Pixel read (maybe supposed to be used for dithering?)
-                    
-                    readBytes += (1 * sizeof(ushort)) + (4 * sizeof(byte));
+                    byte PIXELVAL4 = drawCall.PIXELVAL4 = reader.ReadByte(); // -- Endian should be flipped in the BMPBrush.Plaster();                   
+
+                    readBytes += (4 * sizeof(byte));
 
                     if (OPCODE == 0x80)
                     {
@@ -136,12 +153,11 @@ namespace KidPix.API.Importer.tBMP.Decompressor
                             //RLE Pixel 1
                             rawData[rawDataIndex++] = PIXELVAL1; 
                             rawData[rawDataIndex++] = PIXELVAL2;
-                        }
-                        //**
+                        }                        
                     }
                     else if (OPCODE == 0x81)
                     {
-                        for (int loops = 0; loops < REPEAT_LENGTH * 2; loops++)
+                        for (int loops = 0; loops < (REPEAT_LENGTH << 1); loops+=2)
                         {
                             //Dithering pixel 1
                             rawData[rawDataIndex++] = PIXELVAL1; 
@@ -153,40 +169,9 @@ namespace KidPix.API.Importer.tBMP.Decompressor
                     }
                     else
                     {
-                        throw new Exception("Break point");
+                        //throw new Exception("Break point");
                     }
 
-                    //Copy proceeding data bytes command
-                    if (OPCODE == 0x80)
-                    {
-                        if (scanLineSizeBytes > readBytes) // still more data to go in scan line, safe to proceed
-                        {
-                            if (reader.ReadByte() != 0)
-                            {
-                                reader.BaseStream.Seek(-1, SeekOrigin.Current);
-                                goto SAFEEXIT;
-                            }
-                            reader.BaseStream.Seek(-1, SeekOrigin.Current);
-                            //the amount of bytes multiplied by 2 until the next draw call
-                            ushort COPYBYTES = drawCall.COPYBYTES = reader.ReadUInt16(); // could be a command stream... [byte] OPCODE [byte] byte out, no idea
-                            ushort CPYPARAM0 = drawCall.CPYPARAM0 = reader.ReadUInt16();
-                            readBytes += 4;
-                            int copyBytesAmt = COPYBYTES * 2;
-                            if (copyBytesAmt > (scanLineSizeBytes - readBytes))
-                                throw new InvalidOperationException($"The amount of bytes requested to copy: {copyBytesAmt} was longer than the scanline's available data: {scanLineSizeBytes}");
-                            if (copyBytesAmt == 0)
-                                throw new InvalidOperationException($"The amount of bytes requested to copy: {copyBytesAmt} was 0.");
-
-                            drawCall.COPIED_BYTES = new byte[copyBytesAmt];
-                            reader.BaseStream.Read(drawCall.COPIED_BYTES, 0, copyBytesAmt);
-                            for (int i = 0; i < drawCall.COPIED_BYTES.Length - 1; i += 2)
-                            {
-                                rawData[rawDataIndex++] = drawCall.COPIED_BYTES[i + 1];
-                                rawData[rawDataIndex++] = drawCall.COPIED_BYTES[i];
-                            }
-                            readBytes += copyBytesAmt;
-                        }
-                    }
                 //safely continue onto the next loop while storing the drawcall length field
                 SAFEEXIT:
                     drawCall.LENGTH = readBytes - localReadBytes;

@@ -22,7 +22,7 @@ namespace KidPix.API.Importer.tBMP.Decompressor
             Bytes.ReadExactly(array);
             return Plaster(Header, array);
         }
-        public static Bitmap? Plaster(BMPHeader Header, byte[] RawData)
+        public static Bitmap? Plaster(BMPHeader Header, byte[] RawData, bool ShouldFlipEndian = true)
         {
             PixelFormat Format = Header.BitDepthDescription switch
             {
@@ -30,6 +30,9 @@ namespace KidPix.API.Importer.tBMP.Decompressor
                 BitmapFormat.kBitsPerPixel8 => PixelFormat.Format8bppIndexed,
                 BitmapFormat.kBitsPerPixel24 => PixelFormat.Format24bppRgb,
             };
+
+            if (Header.BitsPerPixel == 16)
+                FlipEndian(ref RawData); // flip from Big to Little Endian
 
             var bmp = new Bitmap(Header.Width, Header.Height, Format);
 
@@ -44,6 +47,17 @@ namespace KidPix.API.Importer.tBMP.Decompressor
             bmp.UnlockBits(bmpData);
 
             return bmp;
+        }
+
+        private static void FlipEndian(ref byte[] RawData)
+        {
+            byte[] destination = new byte[RawData.Length];
+            for (int i = 0; i < RawData.Length - 1; i += 2)
+            {
+                destination[i] = RawData[i + 1];
+                destination[i + 1] = RawData[i];
+            }
+            RawData = destination;
         }
     }
 }

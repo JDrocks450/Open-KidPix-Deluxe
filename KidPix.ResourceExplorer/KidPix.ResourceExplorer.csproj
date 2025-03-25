@@ -6,7 +6,18 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+    <ApplicationIcon>Assets\Ico\Icon15.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Assets\Img\JPSmall.png" />
+    <None Remove="Assets\Img\KP.png" />
+    <None Remove="Assets\Img\pageIcon.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Assets\Ico\Icon15.ico" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\KidPix.API\KidPix.API.csproj" />
@@ -19,6 +30,12 @@
 
   <ItemGroup>
     <Folder Include="Model\Converter\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\Img\JPSmall.png" />
+    <Resource Include="Assets\Img\KP.png" />
+    <Resource Include="Assets\Img\pageIcon.png" />
   </ItemGroup>
 
 </Project>

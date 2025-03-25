@@ -3,19 +3,12 @@
     /// <summary>
     /// Wrapper for <see cref="CHUNK_TYPE"/> with the ability to set a String version in the event the tag is not defined in <see cref="CHUNK_TYPE"/>    
     /// </summary>
-    public class MHWKTypeDescriptor : IEquatable<CHUNK_TYPE>, IEquatable<MHWKTypeDescriptor>
+    /// <param name="ChunkType"></param>
+    /// <param name="AssetID"></param>
+    public readonly record struct MHWKIdentifierToken(CHUNK_TYPE ChunkType, ushort AssetID)
     {
-        public CHUNK_TYPE ChunkType { get; set; }
-        public string StringFormat { get; set; }
-
-        public override bool Equals(object? obj)
-        {
-            if (obj is CHUNK_TYPE inter)
-                return ChunkType == inter;
-            return base.Equals(obj);
-        }
-        public bool Equals(CHUNK_TYPE other) => ChunkType == other;
-        public bool Equals(MHWKTypeDescriptor? other) => other != null ? other?.ChunkType == ChunkType : false;
+        public CHUNK_TYPE ChunkType { get; } = ChunkType;
+        public ushort AssetID { get; } = AssetID;
     }
 
     /// <summary>
@@ -23,6 +16,7 @@
     /// </summary>
     public enum CHUNK_TYPE : uint
     {
+        ERRR = 0xFFFFFFFF,
         /// <summary>
         /// An MHWK Chunk Type
         /// </summary>
@@ -38,6 +32,7 @@
         MBTN = 0x4D42544E,
         tWAV = 0x74574156,     
         tPAL = 0x7450414C,
+
     }
     /// <summary>
     /// 64bit Chunk Types used for Wave files

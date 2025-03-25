@@ -1,14 +1,34 @@
 ﻿using System.Collections;
 using System.Diagnostics.CodeAnalysis;
+using System.Resources;
 
 namespace KidPix.API.Importer.Mohawk
 {
     public class MHWKResourceTable : IDictionary<CHUNK_TYPE,HashSet<ResourceTableEntry>>
     {
+        private Dictionary<MHWKIdentifierToken, ResourceTableEntry> _idMap = new();
+
+        /// <summary>
+        /// Returns a <see cref="ResourceTableEntry"/> matching the given <paramref name="AssetID"/>
+        /// </summary>
+        /// <param name="AssetID"></param>
+        /// <returns></returns>
+        public ResourceTableEntry GetEntryByID(MHWKIdentifierToken AssetID)
+        {
+            if (_idMap.TryGetValue(AssetID, out var entry)) return entry;
+            return this[AssetID.ChunkType].First(x => x.Id == AssetID.AssetID);
+        }
+
+        public ResourceTableEntry this[MHWKIdentifierToken AssetID] => GetEntryByID(AssetID);
+
         #region DICTIONARY FUNCTIONS
         private Dictionary<CHUNK_TYPE, HashSet<ResourceTableEntry>> _map = new();
 
-        public HashSet<ResourceTableEntry> this[CHUNK_TYPE key] { get => ((IDictionary<CHUNK_TYPE, HashSet<ResourceTableEntry>>)_map)[key]; set => ((IDictionary<CHUNK_TYPE, HashSet<ResourceTableEntry>>)_map)[key] = value; }
+        public HashSet<ResourceTableEntry> this[CHUNK_TYPE key]
+        {
+            get => ((IDictionary<CHUNK_TYPE, HashSet<ResourceTableEntry>>)_map)[key];
+            set => ((IDictionary<CHUNK_TYPE, HashSet<ResourceTableEntry>>)_map)[key] = value;
+        }
 
         public ICollection<CHUNK_TYPE> Keys => ((IDictionary<CHUNK_TYPE, HashSet<ResourceTableEntry>>)_map).Keys;
 
@@ -29,6 +49,7 @@ namespace KidPix.API.Importer.Mohawk
             EnsureChunkTypePresentOnResourceTableEntry(key, value);
             if (_map.TryGetValue(key, out var list)) list.Add(value);
             else _map.Add(key, new() { value });
+            _idMap.Add(value.GetIdentifierToken(), value);
         }
 
         public void Add(KeyValuePair<CHUNK_TYPE, HashSet<ResourceTableEntry>> item)
@@ -86,7 +107,7 @@ namespace KidPix.API.Importer.Mohawk
         IEnumerator IEnumerable.GetEnumerator()
         {
             return ((IEnumerable)_map).GetEnumerator();
-        }
+        }        
 
         #endregion
     }

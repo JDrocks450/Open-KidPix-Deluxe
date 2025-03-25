@@ -73,8 +73,8 @@ namespace KidPix.API.Importer
         /// <param name="Stream"></param>
         /// <param name="ParentEntry"></param>
         /// <returns></returns>
-        internal static KidPixResource? DefaultImport(Stream Stream, ResourceTableEntry ParentEntry, CHUNK_TYPE? FallbackChunkType = default) =>
-            GetDefaultImporter(ParentEntry.EnclosingType ?? FallbackChunkType.Value).Import(Stream, ParentEntry); // will crash if both Chunk Types are somehow null
+        internal static KidPixResource? DefaultImport(Stream Stream, ResourceTableEntry ParentEntry) =>
+            GetDefaultImporter(ParentEntry.EnclosingType).Import(Stream, ParentEntry); // will crash if both Chunk Types are somehow null
 
         /// <summary>
         /// When overridden in a derived class, will import the given <see cref="MHWKFile.ReadResourceDataAsync(ResourceTableEntry)"/> data stream

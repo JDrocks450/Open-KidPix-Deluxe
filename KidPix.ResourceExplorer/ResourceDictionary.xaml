@@ -24,4 +24,6 @@
         </Polygon.Points>
     </Polygon>
     <Border x:Key="StopSquare" x:Shared="False" Background="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ContentControl}}" Width="20" Height="20"/>
+    <ImageBrush x:Key="KidPixBannerBackgroundBrush" ImageSource="/Assets/Img/KP.png" Stretch="UniformToFill" Opacity=".5"/>
+    <SolidColorBrush x:Key="GeneralWindowBackgroundColorBrush" Color="#FF13674C"/>
 </ResourceDictionary>

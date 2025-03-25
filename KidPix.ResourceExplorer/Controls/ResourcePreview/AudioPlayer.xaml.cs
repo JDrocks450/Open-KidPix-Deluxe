@@ -127,7 +127,7 @@ namespace KidPix.ResourceExplorer.Controls.ResourcePreview
         {
             if (!IsSafe()) return;
 
-            var file = System.IO.Path.GetTempPath() + $"\\{ResourceName}.wav";
+            var file = System.IO.Path.GetTempPath() + $"\\{System.IO.Path.GetFileNameWithoutExtension(ResourceName)}.wav";
             ExportOne(file, AudioSample);
             var collect = new System.Collections.Specialized.StringCollection { file };
             Clipboard.SetFileDropList(collect);

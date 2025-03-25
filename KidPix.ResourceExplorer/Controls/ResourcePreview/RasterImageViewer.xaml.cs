@@ -23,11 +23,14 @@ namespace KidPix.ResourceExplorer.Controls.ResourcePreview
     /// </summary>
     public partial class RasterImageViewer : UserControl, IResourcePreviewControl
     {
-        const int MAX_PALETTE_ENTRIES = 512;
+        const int MAX_PALETTE_ENTRIES = 512, MAX_CALLSTACK_RESOLUTION = 100;
 
         private BMPResource? _currentResource;
         private HexEditorResourcePreview _debugger => _debuggerWindow.Content as HexEditorResourcePreview;
         private Window _debuggerWindow;
+
+        private StackPanel _callstackStackpanel;
+        private Window _brushRLECallstackWindow;
 
         public RasterImageViewer()
         {
@@ -38,12 +41,25 @@ namespace KidPix.ResourceExplorer.Controls.ResourcePreview
                 Dispose();
             };
             Reset();
+
+            //**DEBUG
+            Brush bgBrush = (Brush)FindResource("GeneralWindowBackgroundColorBrush");
             _debuggerWindow = new()
             {
+                Background = bgBrush,
                 Width = 800,
                 Height = 600,
                 Title = "Debug Window",
                 Content = new HexEditorResourcePreview()
+            };
+            _callstackStackpanel = new StackPanel();
+            _brushRLECallstackWindow = new()
+            {
+                Background = bgBrush,
+                Width = 400,
+                Height = 600,
+                Title = "Callstack Window",
+                Content = new ScrollViewer() { Content = _callstackStackpanel }
             };
         }
 
@@ -79,19 +95,11 @@ namespace KidPix.ResourceExplorer.Controls.ResourcePreview
             CodeRunLinePreviewBox.Foreground = Brushes.Black;
             CodeRunLinePreviewBox.ToolTip = null;
 
-            PreviewImage.Source = _currentResource.BitmapImage.Convert(true);
-            if (API.Importer.tBMP.Decompressor.BMPRLE16Brush.DEBUG_LAST_CALL != null)
-            {                
-                CodeRunLinePreviewBox.Text = API.Importer.tBMP.Decompressor.BMPRLE16Brush.DEBUG_LAST_CALL.ToString();
-                _debugger.HexEditorControl.SelectionStart = API.Importer.tBMP.Decompressor.BMPRLE16Brush.DEBUG_LAST_CALL.OFFSET;
-                _debugger.HexEditorControl.SelectionStop = (API.Importer.tBMP.Decompressor.BMPRLE16Brush.DEBUG_LAST_CALL.LENGTH + API.Importer.tBMP.Decompressor.BMPRLE16Brush.DEBUG_LAST_CALL.OFFSET)-1;
-                _debuggerWindow.Show();
-                if (API.Importer.tBMP.Decompressor.BMPRLE16Brush.DEBUG_LAST_ERROR != null)
-                {
-                    CodeRunLinePreviewBox.Foreground = Brushes.Red;
-                    CodeRunLinePreviewBox.ToolTip = API.Importer.tBMP.Decompressor.BMPRLE16Brush.DEBUG_LAST_ERROR;
-                }
-            }           
+            PreviewImage.Source = _currentResource?.BitmapImage?.Convert(true);
+            if (PreviewImage.Source == null) return;
+
+            EvaluateDebugWindows();
+
             MakePaletteUI(_currentResource?.BitmapImage?.Palette);
         }
 
@@ -168,6 +176,74 @@ namespace KidPix.ResourceExplorer.Controls.ResourcePreview
         {
             API.Importer.tBMP.Decompressor.BMPRLE16Brush.DEBUG_RUNNING_UNTIL_NEXT_SCAN = true;
             (Application.Current.MainWindow as MainWindow)?.CurrentResExplorerPage?.ReloadResource();
+        }
+
+        private void Debug_JumpToDrawCallOffset16(API.Importer.tBMP.Decompressor.BMPRLE16Brush.RLEDrawCall? DrawCall)
+        {
+            if (DrawCall == null) return;
+            _debugger.HexEditorControl.SelectionStart = DrawCall.OFFSET;
+            _debugger.HexEditorControl.SelectionStop = (DrawCall.LENGTH + DrawCall.OFFSET) - 1;
+            _debuggerWindow.Show();
+            _debuggerWindow.Focus();
+        }
+
+        private void EvaluateDebugWindows()
+        {
+            _debuggerWindow.Hide();
+            _brushRLECallstackWindow.Hide();
+
+            if ((_currentResource?.Header?.DrawAlgorithm ?? BitmapDrawCompression.kDrawRaw) is not BitmapDrawCompression.kDrawRLE) return;
+            if (API.Importer.tBMP.Decompressor.BMPRLE16Brush.DEBUG_LAST_CALL is not null)
+            {
+                //HEX EDITOR DEBUG WINDOW
+                CodeRunLinePreviewBox.Text = API.Importer.tBMP.Decompressor.BMPRLE16Brush.DEBUG_LAST_CALL.ToString();
+                Debug_JumpToDrawCallOffset16(API.Importer.tBMP.Decompressor.BMPRLE16Brush.DEBUG_LAST_CALL);                
+                if (API.Importer.tBMP.Decompressor.BMPRLE16Brush.DEBUG_LAST_ERROR != null)
+                { // ENDED WITH AN ERROR
+                    CodeRunLinePreviewBox.Foreground = Brushes.Red;
+                    CodeRunLinePreviewBox.ToolTip = API.Importer.tBMP.Decompressor.BMPRLE16Brush.DEBUG_LAST_ERROR;
+                }
+            }
+
+            //if (_currentResource.Header.Height > MAX_CALLSTACK_RESOLUTION) return;
+
+            //CALLSTACK DBG WINDOW
+            _callstackStackpanel.Children.Clear();
+            foreach(KeyValuePair<int, List<API.Importer.tBMP.Decompressor.BMPRLE16Brush.RLEDrawCall>> 
+                scanGroup in API.Importer.tBMP.Decompressor.BMPRLE16Brush.DEBUG_DrawCallsByRow)
+            {
+                int scanLine = scanGroup.Key;                
+
+                var expander = new Expander()
+                {
+                    Foreground = Brushes.White,
+                    Header = $"Scan{scanLine}",                    
+                };
+                expander.Expanded += delegate
+                { // Load new Scan Line frame
+                    List<API.Importer.tBMP.Decompressor.BMPRLE16Brush.RLEDrawCall> drawCallsList = scanGroup.Value;
+                    var listBox = new ListBox()
+                    {
+                        ItemsSource = drawCallsList
+                    };
+                    expander.Content = listBox;
+                    listBox.SelectionChanged += (object sender, SelectionChangedEventArgs e) =>
+                    { // Invoke Hex Control to move to offset of selected DrawCall
+                        Debug_JumpToDrawCallOffset16(listBox.SelectedValue as API.Importer.tBMP.Decompressor.BMPRLE16Brush.RLEDrawCall);
+                    };
+                };
+                expander.Collapsed += delegate
+                { // unload Scan Line Frame
+                    expander.Content = null;
+                };
+                _callstackStackpanel.Children.Add(expander);
+            }
+            _brushRLECallstackWindow.Show();
+        }
+
+        private void CopyImageClipboardMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            Clipboard.SetImage((BitmapSource)PreviewImage.Source);
         }
 
         public void Dispose()

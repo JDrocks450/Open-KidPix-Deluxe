@@ -18,6 +18,8 @@
         public uint Offset { get; internal set; }
         public long Size { get; internal set; }
 
-        public CHUNK_TYPE? EnclosingType { get; internal set; } = null;
+        public CHUNK_TYPE EnclosingType { get; internal set; }
+
+        public MHWKIdentifierToken GetIdentifierToken() => new(EnclosingType, Id);
     }
 }

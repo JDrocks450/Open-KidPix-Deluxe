@@ -98,6 +98,7 @@ namespace KidPix.ResourceExplorer.Controls.ResourcePreview
                 //ULONG
                 Register("ulong (UInt64)", () => reader.ReadUInt64(Endian).ToString(Format));
                 Register("SELECT", () => Bytes.Length.ToString());
+                Register("SELECT (0x)", () => Bytes.Length.ToString("X8"));
             }
             DataInspectorGrid.Children.Clear();
             InspectData(Inspect,ByteOrder);

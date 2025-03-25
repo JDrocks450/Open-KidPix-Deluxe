@@ -1,5 +1,8 @@
-﻿using KidPix.API.Importer;
+﻿using KidPix.API.Directory;
+using KidPix.API.Importer;
+using KidPix.API.Importer.kINI;
 using KidPix.API.Importer.Mohawk;
+using KidPix.API.Importer.tBMP.Decompressor;
 using KidPix.API.Importer.tWAV;
 using KidPix.ResourceExplorer.Model.Core;
 using Microsoft.Win32;
@@ -35,60 +38,58 @@ namespace KidPix.ResourceExplorer.Pages.ResourceExplorer
         {
             InitializeComponent();
 
+            Title = $"{App.AppName}";
             Loaded += ResourceExplorerResPage_Loaded;
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
         private void ResourceExplorerResPage_Loaded(object sender, RoutedEventArgs e)
-        {
-            ((IResAppPage)this).TryRegisterMenuItem("File\\Open", delegate { PromptUserLoadFile(); }, out _);
-
-            LoadFile(App.AutoOpen);
+        {            
+            KidPixINIFile ini = INIImporter.Import(@"C:\Program Files (x86)\The Learning Company\Kid Pix Deluxe 4\KP.cfg");
         }
 
-        public void LoadFile(string FileName)
+        public void LoadMohawkArchiveFile(FileInfo MohawkArchive, MHWKIdentifierToken? SelectedAsset = default)
         {
-            var file = CurrentFile = MHWKImporter.Import(FileName);
+            if (MohawkArchive == default) return;
+
+            var file = CurrentFile = MHWKImporter.Import(MohawkArchive.FullName);
             if (file == null) return;
 
-            ResourceTypeExplorer.Items.Clear();
+            ResourceExplorer.Items.Clear();
             foreach (var type in file.Resources)
-            {
+            {                
                 MHWKTypeDescription.TryGetTypeName(type.Key, out var name);
-                string TagArchiveStr = new string(Encoding.UTF8.GetString(BitConverter.GetBytes((uint)type.Key)).Reverse().ToArray());
+                string TagArchiveStr = MHWKTypeDescription.GetChunkTypeStringFromBytes(type.Key);
+                ContentControl HeaderControl = new()
+                {
+                    Content = $"{name ?? "Unsupported"} ({TagArchiveStr})"
+                };
                 var typeNode = new TreeViewItem()
                 {
-                    Header = $"{name ?? "Unsupported"} ({TagArchiveStr})"
+                    Header = HeaderControl
                 };
-                ResourceTypeExplorer.Items.Add(typeNode);
+                ResourceExplorer.Items.Add(typeNode);
                 foreach (ResourceTableEntry resource in type.Value)
                 {
+                    ContentControl LocalHeaderControl = new()
+                    {
+                        Content = string.IsNullOrWhiteSpace(resource.Name) ? $"{TagArchiveStr}_{resource.Id.ToString()}" : resource.Name
+                    };
                     TreeViewItem resNode = new TreeViewItem()
                     { 
-                        Header = string.IsNullOrWhiteSpace(resource.Name) ? $"{TagArchiveStr}_{resource.Id.ToString()}" : resource.Name 
+                        Header = LocalHeaderControl,
+                        IsExpanded = true
                     };
                     typeNode.Items.Add(resNode);
-                    resNode.Selected += delegate { ResourceSelected(resource); };
+                    resNode.Selected += async delegate { await ResourceSelected(resource); };
+                    if (resource.GetIdentifierToken() == SelectedAsset)
+                        resNode.IsSelected = true;
                 }
             }
-        }
 
-        private void PromptUserLoadFile()
-        {
-            OpenFileDialog dialog = new()
-            {
-                Title = "Open a *.MHK File",
-                Filter = "Mohawk Archive File Format (*.MHK)|*.MHK",
-                InitialDirectory = @"C:\Program Files (x86)\The Learning Company\Kid Pix Deluxe 4\Data",//Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
-                RestoreDirectory = true,
-                CheckFileExists = true,
-                Multiselect = false
-            };
-            if (!dialog.ShowDialog() ?? true || string.IsNullOrWhiteSpace(dialog.FileName))
-                return;
-            LoadFile(dialog.FileName);
-        }
+            Title = $"{App.AppName} - {System.IO.Path.GetFileName(MohawkArchive.FullName)}";
+        }        
 
         private async Task ResourceSelected(ResourceTableEntry Entry)
         {
@@ -97,6 +98,9 @@ namespace KidPix.ResourceExplorer.Pages.ResourceExplorer
             if (CurrentFile == default) return;
 
             ResourceInformation.Breakdown(Entry);
+
+            if (CurrentEntry != Entry)            
+                BMPRLE16Brush.DEBUG_MAX_COMMANDS = 1;            
 
             CurrentEntry = Entry;
             SaveButton.IsEnabled = CurrentEntry != null;
@@ -129,25 +133,10 @@ namespace KidPix.ResourceExplorer.Pages.ResourceExplorer
         {
             if (CurrentFile == default || CurrentEntry == default) { SaveButton.IsEnabled = false; return; }
 
-            SaveFileDialog saveFileDialog = new()
-            {
-                CheckFileExists = false,
-                AddExtension = true,
-                Filter = "Binary Data File (*.dat)|*.dat",
-                Title = "Save to Destination",
-                DefaultDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
-                RestoreDirectory = true,
-                OverwritePrompt = true
-            };
-            if (!saveFileDialog.ShowDialog() ?? true || string.IsNullOrWhiteSpace(saveFileDialog.FileName))
-                return;
-            using FileStream fileHandle = File.Create(saveFileDialog.FileName);
-            await CurrentFile.ReadResourceDataAsync(fileHandle,CurrentEntry);
-        }
-
-        private async void ImportButton_Click(object sender, RoutedEventArgs e)
-        {
-            
+            string? fileName = App.UserSaveSingleFile("Binary Data File (*.dat)|*.dat");
+            if (string.IsNullOrWhiteSpace(fileName)) return;
+            using FileStream fileHandle = File.Create(fileName);
+            await CurrentFile.ReadResourceDataAsync(fileHandle, CurrentEntry);
         }
     }
 }

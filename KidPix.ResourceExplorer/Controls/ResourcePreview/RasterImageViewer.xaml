@@ -27,7 +27,15 @@
             </DockPanel>
             <Border BorderBrush="Black" BorderThickness="1" Background="Blue" Margin="10" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center" Padding="10">
                 <ContentControl Background="White">
-                    <Image Name="PreviewImage" RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Uniform"/>
+                    <Image Name="PreviewImage" RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Uniform">
+                        <Image.ContextMenu>
+                            <ContextMenu MinWidth="150">
+                                <TextBlock FontWeight="Bold">Image Options:</TextBlock>
+                                <MenuItem x:Name="CopyImageClipboardMenuItem" Click="CopyImageClipboardMenuItem_Click" Header="Copy Image"/>
+                                <MenuItem Header="Save Image"/>
+                            </ContextMenu>
+                        </Image.ContextMenu>
+                    </Image>
                 </ContentControl>
             </Border>
         </Grid>

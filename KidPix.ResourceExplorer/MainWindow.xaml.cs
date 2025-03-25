@@ -11,6 +11,10 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Linq.Expressions;
 using KidPix.ResourceExplorer.Pages.ResourceExplorer;
+using KidPix.ResourceExplorer.Pages.DirectoryExplorer;
+using KidPix.API.Directory;
+using System.IO;
+using KidPix.API.Importer.Mohawk;
 
 namespace KidPix.ResourceExplorer
 {
@@ -33,15 +37,45 @@ namespace KidPix.ResourceExplorer
         private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             ClearAllMenuItems();
+            //**VITAL ITEMS**
             EnsureVitalMenuItems();
+            //**MENU ITEMS
+            ((IResAppWindow)this).TryRegisterMenuItem("File\\Open Mohawk Archive (*.MHK, *.KPA, etc.)", async delegate { await InvokeOpenResourceExplorer(); }, out _);
+            ((IResAppWindow)this).TryRegisterMenuItem("Edit\\Build Kid Pix Directory Manifest", delegate
+            { // REBUILD MANIFEST MENU ITEM CALLBACK
+                string? fName = App.UserOpenDirectory("Select where Kid Pix 4 Deluxe is installed", App.KidPix4DeluxeFilePath);
+                if (string.IsNullOrWhiteSpace(fName)) return;
+                MHWKManifestFile manifest = MHWKManifestor.CreateManifestDirectory(new DirectoryInfo(fName));
+                manifest.Save("E:\\manifest.json");
+            }, out _);
+            ((IResAppWindow)this).TryRegisterMenuItem("File\\Open Kid Pix Directory Manifest", async delegate
+            { // LOAD MANIFEST MENU ITEM CALLBACK
+                string? fName = App.UserOpenSingleFile("Select a Manifest", "Manifest File (*.json)|*.json", App.KidPix4DeluxeFilePath);
+                if (string.IsNullOrWhiteSpace(fName)) return;
+                MHWKManifestFile? manifest = await MHWKManifestor.LoadManifestFile(new FileInfo(fName));
+            }, out _);
 
             //**default page
-            await NavigateNewPrimaryPageAsync(new ResourceExplorerResPage());
+            await NavigateNewPrimaryPageAsync(new DirectoryManifestExplorer());
         }
 
         private void EnsureVitalMenuItems()
         {
             TryRegisterMenuItem("File\\Exit", delegate { Application.Current.Shutdown(); }, out _);
+            TryRegisterMenuItem("File\\!-", null, out _);            
+        }
+
+        public async Task InvokeOpenResourceExplorer(FileInfo? MohawkArchiveFileInfo = default, MHWKIdentifierToken? SelectedAsset = default)
+        {
+            if (MohawkArchiveFileInfo == null)
+            { // PROMPT USER SELECT FILE
+                string? FileName = App.UserOpenSingleFile("Open a *.MHK File", "Mohawk Archive (*.MHK)|*.MHK", App.KidPix4DeluxeFilePath);
+                if (string.IsNullOrWhiteSpace(FileName)) return;
+                MohawkArchiveFileInfo = new(FileName);
+            }
+            var resPage = new ResourceExplorerResPage();
+            await NavigateNewPrimaryPageAsync(resPage);            
+            resPage.LoadMohawkArchiveFile(MohawkArchiveFileInfo, SelectedAsset);
         }
 
         #region ResApp Interface
@@ -75,7 +109,7 @@ namespace KidPix.ResourceExplorer
         }
 
         public bool TryRegisterMenuItem(string Path, RoutedEventHandler ActionCallback, out MenuItem? CreatedItem)
-        {
+        {            
             string[] itemsPath = Path.Split("\\");
             CreatedItem = null;
 
@@ -86,6 +120,12 @@ namespace KidPix.ResourceExplorer
             for (int i = 0; i < itemsPath.Length; i++)
             {                
                 string searchToken = itemsPath[i];
+                if (searchToken == "!-") // separator
+                {
+                    searchCollection.Insert(0, new Separator());
+                    continue;
+                }
+
                 currentItem = searchCollection.OfType<MenuItem>().FirstOrDefault(x => x.Header.ToString() == searchToken);
 
                 if (currentItem == null)
@@ -94,13 +134,13 @@ namespace KidPix.ResourceExplorer
                     {
                         Header = searchToken
                     };
-                    searchCollection.Add(currentItem);
+                    searchCollection.Insert(0,currentItem);
                 }
 
                 searchCollection = currentItem.Items;                
             }
 
-            if (currentItem != null)
+            if (currentItem != null && ActionCallback != null)
                 currentItem.Click += ActionCallback;
 
             CreatedItem = currentItem;
