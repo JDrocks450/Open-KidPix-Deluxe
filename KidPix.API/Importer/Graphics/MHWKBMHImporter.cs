@@ -10,85 +10,6 @@ using System.Threading.Tasks;
 namespace KidPix.API.Importer.Graphics
 {
     /// <summary>
-    /// A frame in a <see cref="BMHResource"/>
-    /// </summary>
-    /// <param name="Offset"></param>
-    /// <param name="Length"></param>
-    public record BMHFrameInfo(ushort Offset, int Length)
-    {        
-        public int Length { get; set; } = Length;
-    }
-
-    /// <summary>
-    /// Every <see cref="BMHResource"/> starts with a table section that maps out the offsets of all the <see cref="BMPResource"/>s it contains
-    /// </summary>
-    public class BMHTable
-    {
-        /// <summary>
-        /// This maps <c>[RESOURCE ID,[FRAME NUMBER, FILE OFFSET]]</c>
-        /// </summary>
-        public Dictionary<int, Dictionary<int, BMHFrameInfo>> Offsets { get; } = new();
-
-        public BMHFrameInfo this[(int ResourceIndex, int FrameIndex) Identifier] => this[Identifier.ResourceIndex][Identifier.FrameIndex];
-        public Dictionary<int, BMHFrameInfo> this[int ResourceIndex] => Offsets[ResourceIndex];
-
-        public void AddScan(int Frame, BMHFrameInfo ScanLineInfo)
-        {
-            if (!Offsets.TryGetValue(Frame, out var map))
-            {
-                map = new Dictionary<int, BMHFrameInfo>();
-                Offsets.Add(Frame, map);
-            }
-            map.Add(map.Count, ScanLineInfo);
-        }        
-    }
-
-    /// <summary>
-    /// A <see cref="KidPixResource"/> that contains a set of <see cref="BMPResource"/> packed together 
-    /// intended to be used with animated objects
-    /// </summary>
-    public class BMHResource : KidPixResource
-    {
-        private Stream _fileStream;
-
-        public BMHResource(Stream FileStream, BMHTable table, ResourceTableEntry ParentEntry) : base(ParentEntry)
-        {
-            Table = table;
-            _fileStream = FileStream;
-        }
-
-        public BMHTable Table { get; }
-
-        public byte[] ReadFrameData(int ResourceID, int FrameIndex)
-        {
-            var frame = Table[ResourceID][FrameIndex];
-            return ReadFrameData(frame);
-        }
-        public byte[] ReadFrameData(BMHFrameInfo Info)
-        {
-            var frame = Info;
-            _fileStream.Seek(frame.Offset, SeekOrigin.Begin);
-            byte[] rawBytes = new byte[frame.Length];      
-            _fileStream.ReadExactly(rawBytes,0,rawBytes.Length);
-            return rawBytes;
-        }
-
-        /// <summary>
-        /// Uses the <see cref="MHWKBitmapImporter"/> to convert the given <paramref name="FrameInfo"/> data to a <see cref="BMPResource"/>
-        /// </summary>
-        /// <param name="FrameInfo"></param>
-        /// <returns><see cref="BMPResource"/></returns>
-        public BMPResource? ImportFrame(BMHFrameInfo FrameInfo) => 
-            MHWKResourceImporterBase.GetDefaultImporter(CHUNK_TYPE.tBMP).
-            Import(new MemoryStream(ReadFrameData(FrameInfo)), ParentEntry) as BMPResource;
-
-        public override void Dispose()
-        {
-            _fileStream.Dispose();
-        }
-    }
-
-    /// <summary>
     /// Imports a <see cref="BMHResource"/> that contains <see cref="BMPResource"/> objects compressed together
     /// </summary>
     [MHWKImporter(CHUNK_TYPE.tBMH)]
@@ -107,25 +28,55 @@ namespace KidPix.API.Importer.Graphics
             BMHTable table = ReadBMHTable(reader);
             //**return bmh wrapper
             return new BMHResource(Stream, table, ParentEntry);
-        }                
+        }
 
         private static BMHTable ReadBMHTable(EndianBinaryReader Reader)
         {
             BMHTable table = new();
-            BMHFrameInfo lastScan = null;
-            ushort Scan0Offset = 0;
+            int frameIndex = 0;
+            uint Scan0Offset = 0;
+            IEnumerable<BMHFrameInfo> info = table.Resources.Values;
             do
             {
-                ushort frame_number = Reader.ReadUInt16();
-                ushort offset = Reader.ReadUInt16();
+                ushort resource_number = Reader.ReadUInt16();
+                uint offset = (uint)((Reader.ReadUInt16() + resource_number) + (ushort.MaxValue * resource_number));
+                table.AddResource(new(frameIndex++, offset, 0));
+                if (Scan0Offset == 0)
+                    Scan0Offset = offset;
+            } while (Reader.BaseStream.Position < Scan0Offset);
+            for(int i = 0; i < info.Count() - 1; i++)            
+                info.ElementAt(i).Length = info.ElementAt(i + 1).Offset - info.ElementAt(i).Offset;
+            info.Last().Length = (uint)(Reader.BaseStream.Length - info.Last().Offset);
+            return table;
+        }
+
+#if false
+        private static BMHTable ReadBMHTableOld(EndianBinaryReader Reader)
+        {
+            BMHTable table = new();
+            BMHFrameInfo lastScan = null;
+            uint Scan0Offset = 0;
+            int frameIndex = 0;
+            uint offset_accumulator = 0;
+            do
+            {
+                ushort resource_number = Reader.ReadUInt16();
+                uint offset = (uint)((Reader.ReadUInt16() + resource_number) + (ushort.MaxValue * resource_number));
+                if (lastScan != null && lastScan.ResourceID != resource_number) // does the last frame match this resource?                
+                {
+                    offset_accumulator = lastScan.Offset;
+                    lastScan = null; // resource changed! set last scan to 0
+                    frameIndex = 0;                    
+                }
                 if (lastScan != null)
-                    lastScan.Length = offset - lastScan.Offset;
-                lastScan = new(offset, -1);
-                table.AddScan(frame_number, lastScan);
+                    lastScan.Length = (uint)(offset - lastScan.Offset);
+                lastScan = new(resource_number, frameIndex++, offset, (uint)(Reader.BaseStream.Length - offset));
+                table.AddScan(resource_number, lastScan);
                 if (Scan0Offset == 0)
                     Scan0Offset = offset;
             } while (Reader.BaseStream.Position < Scan0Offset);
             return table;
         }
+#endif
     }
 }

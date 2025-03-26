@@ -21,6 +21,7 @@ namespace KidPix.ResourceExplorer.Controls
         private KidPixResource? _resourceSelected;
 
         public event PropertyChangedEventHandler? PropertyChanged;
+        public event EventHandler OnPushResourceInfoUpdate;
 
         public Object? ResourceContent
         {
@@ -43,6 +44,7 @@ namespace KidPix.ResourceExplorer.Controls
                 {
                     { typeof(WAVResource),new AudioPlayer() },
                     { typeof(BMPResource),new RasterImageViewer() },
+                    { typeof(BMHResource),new RasterImageViewer() },
                     { typeof(GenericKidPixResource),new HexEditorResourcePreview() }
                 };
             }
@@ -52,47 +54,32 @@ namespace KidPix.ResourceExplorer.Controls
         {
             if (Resource == null) return;
 
-            if (Resource is BMPResource bmpResource)
-            {
-                if (bmpResource?.BitmapImage == null) return;
-                bmpResource.BitmapImage.Save("test.bmp");
-            }
-
             Dispose();
 
-            if (Resource is BMHResource bmh)
-            {
-                var frameSource = bmh.Table[0];
-                var treeView = new ListBox()
-                {
-                    ItemsSource = frameSource.Select(x => $"Frame {x}")
-                };
-                Window hWnd = new()
-                {
-                    Content = treeView,
-                    SizeToContent = SizeToContent.WidthAndHeight
-                };
-                BMHFrameInfo GetSelectedFrame() => frameSource[treeView.SelectedIndex];
-                treeView.SelectionChanged += delegate
-                {
-                    if (treeView.SelectedIndex <= -1 || treeView.SelectedIndex >= frameSource.Count) return;
-                    hWnd.Close();
-                };                               
-                hWnd.ShowDialog();
-                Resource = bmh.ImportFrame(GetSelectedFrame());
-            }
+            IResourcePreviewControl previewControl = _controls[Resource.GetType()];
+            ContentFrame.Content = previewControl;
+            previewControl.AttachResource(Resource);
 
-            ContentFrame.Content = _controls[Resource.GetType()];
-            _controls[Resource.GetType()].AttachResource(Resource);
+            ResourceContent = Resource;            
+            ResourceInformationBlock.Breakdown(previewControl.GetResourceInformationContext());
+            previewControl.OnPushResourceInfoUpdate += PreviewControl_OnPushResourceInfoUpdate;
+        }
 
-            ResourceContent = Resource;
-            ResourceInformationBlock.Breakdown(Resource);
+        private void PreviewControl_OnPushResourceInfoUpdate(object? sender, EventArgs e)
+        {
+            if (ContentFrame.Content is not IResourcePreviewControl control) return;
+            ResourceInformationBlock.Breakdown(control.GetResourceInformationContext());
         }
 
         public void Dispose()
         {
             if (ContentFrame.Content != null && ContentFrame.Content is IResourcePreviewControl control)
+            {
+                control.OnPushResourceInfoUpdate -= PreviewControl_OnPushResourceInfoUpdate;
                 control.Dispose();
+            }
         }
+
+        public object? GetResourceInformationContext() => null;
     }
 }

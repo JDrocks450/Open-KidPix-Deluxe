@@ -62,5 +62,13 @@ namespace KidPix.API.Importer.Graphics.Brushes
             }
             RawData = destination;
         }
+
+        /// <summary>
+        /// Renders the Image resource to the <paramref name="Output"/> parameter 
+        /// <para/><i>Using ref parameter allows for the incomplete image to still be displayed for studying/research on error</i>
+        /// </summary>
+        /// <param name="Output"></param>
+        /// <returns>true if completed without errors</returns>
+        public abstract void GetImageDataBytes(ref byte[] Output);
     }
 }

@@ -28,6 +28,7 @@ namespace KidPix.API.Importer.Graphics.Brushes
         }
 
         public override Bitmap? Paint() => Paint(Header, CompressedImageDataStream, Endian);
+        public override void GetImageDataBytes(ref byte[] Output) => Output = Brush(Header, CompressedImageDataStream, Endian);
 
         public static Bitmap? Paint(BMPHeader Header, Stream ImageData, Endianness Endian)
         {

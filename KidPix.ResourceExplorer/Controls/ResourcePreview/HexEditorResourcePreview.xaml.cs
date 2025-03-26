@@ -26,6 +26,8 @@ namespace KidPix.ResourceExplorer.Controls.ResourcePreview
     {
         KidPixResource? _currentResource = null;
 
+        public event EventHandler OnPushResourceInfoUpdate;
+
         public HexEditorResourcePreview()
         {
             InitializeComponent();
@@ -113,5 +115,7 @@ namespace KidPix.ResourceExplorer.Controls.ResourcePreview
         {
             HexEditorControl_SelectionChanged(sender, null);
         }
+
+        public object? GetResourceInformationContext() => _currentResource;
     }
 }

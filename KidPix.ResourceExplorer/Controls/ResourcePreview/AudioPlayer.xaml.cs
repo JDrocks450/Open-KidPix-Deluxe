@@ -32,6 +32,7 @@ namespace KidPix.ResourceExplorer.Controls.ResourcePreview
         private WAVResource? AudioSample;
 
         public event PropertyChangedEventHandler? PropertyChanged;
+        public event EventHandler OnPushResourceInfoUpdate;
 
         public string ResourceName => AudioSample?.FileName ?? (AudioSample == null ? "None selected" : $"WaveFile_{AudioSample.ID}.wav");
         public AudioPlayer()
@@ -160,6 +161,8 @@ namespace KidPix.ResourceExplorer.Controls.ResourcePreview
             AudioSample.WaveData.AudioDataStream.CopyTo(fs);
         }
 
+        public object? GetResourceInformationContext() => AudioSample;
+
         private bool IsSafe() => AudioSample?.WaveData?.AudioDataStream != null;
 
         /// <summary>
@@ -171,5 +174,7 @@ namespace KidPix.ResourceExplorer.Controls.ResourcePreview
             AudioSample?.Dispose();
             AudioSample = null;
         }
+
+        
     }
 }

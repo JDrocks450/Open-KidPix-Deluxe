@@ -11,13 +11,13 @@ namespace KidPix.API.Importer.tBMP.Decompressor
 {
     public static class BMPRLE16BrushDebug
     {
-        public const bool DEBUGGING_ENABLED =
+        public static bool DEBUGGING_ENABLED =
 #if DEBUG_ENABLED
             true;
 #else 
             false;
 #endif
-        private const int SET_MAX_COMMANDS = DEBUGGING_ENABLED ? 1 : int.MaxValue;
+        private static int SET_MAX_COMMANDS = DEBUGGING_ENABLED ? 1 : int.MaxValue;
 
 
         private static int DEBUG_DrawCalls = 0;
@@ -66,6 +66,7 @@ namespace KidPix.API.Importer.tBMP.Decompressor
             this.CompressedImageDataStream = CompressedImageDataStream;
             this.Endian = Endian;
         }
+        public override void GetImageDataBytes(ref byte[] Output) => Brush(Header, CompressedImageDataStream, Endian, ref Output);
 
         public override Bitmap? Paint() => Paint(Header, CompressedImageDataStream, Endian);
 
@@ -111,6 +112,9 @@ namespace KidPix.API.Importer.tBMP.Decompressor
 
             while (ImageData.Position < ImageData.Length)
             {
+                if (scanline > Header.Height) 
+                    break;
+
                 //DEBUG - halt to show progress and learn format of this compression algorithm
                 if (BMPRLE16BrushDebug.AssertCanContinue()) break;
 
@@ -120,7 +124,7 @@ namespace KidPix.API.Importer.tBMP.Decompressor
                 //The index in the Output BMP we're currently at (set this initially to be start of new Scan Line in Output BMP)
                 int rawDataIndex = (Header.BytesPerRow * scanline);
                 //the amount of bytes we've read in this scanline
-                int readBytes = 0;
+                int readBytes = 0;                
 
                 //BEGIN READING SCAN LINE
 
@@ -147,6 +151,8 @@ namespace KidPix.API.Importer.tBMP.Decompressor
                         throw new InvalidOperationException("Our position in the finished image is past where it is allowed to be." +
                             $" {rawDataIndex} / {(Header.BytesPerRow * (scanline + 1))}");
                     }
+                    if (rawDataIndex > rawData.Length)
+                        break;
 
                     RLEDrawCall drawCall = BMPRLE16BrushDebug.DEBUG_LAST_CALL = new(ImageData.Position); // make a new draw call for debug purposes
 

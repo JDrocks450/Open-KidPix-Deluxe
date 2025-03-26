@@ -1,7 +1,10 @@
 ﻿using KidPix.API.Importer;
 using KidPix.API.Importer.Graphics;
+using KidPix.API.Importer.tBMP.Decompressor;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,32 +21,21 @@ using System.Windows.Shapes;
 
 namespace KidPix.ResourceExplorer.Controls.ResourcePreview
 {
-    /// <summary>
-    /// Interaction logic for RasterImageViewer.xaml
-    /// </summary>
-    public partial class RasterImageViewer : UserControl, IResourcePreviewControl
+    internal class RasterImageDebugProvider
     {
-        const int MAX_PALETTE_ENTRIES = 512, MAX_CALLSTACK_RESOLUTION = 100;
+        public HexEditorResourcePreview _debugger => _debuggerWindow.Content as HexEditorResourcePreview;
+        public Window _debuggerWindow;
 
-        private BMPResource? _currentResource;
-        private HexEditorResourcePreview _debugger => _debuggerWindow.Content as HexEditorResourcePreview;
-        private Window _debuggerWindow;
+        public StackPanel _callstackStackpanel;
+        public Window _brushRLECallstackWindow;
 
-        private StackPanel _callstackStackpanel;
-        private Window _brushRLECallstackWindow;
-
-        public RasterImageViewer()
+        public void CreateSession(Brush BackgroundBrush)
         {
-            InitializeComponent();
-
-            Unloaded += delegate
-            {
-                Dispose();
-            };
-            Reset();
+            //ENSURE OLD SESSION CLOSED
+            CloseSession();
 
             //**DEBUG
-            Brush bgBrush = (Brush)FindResource("GeneralWindowBackgroundColorBrush");
+            var bgBrush = BackgroundBrush;
             _debuggerWindow = new()
             {
                 Background = bgBrush,
@@ -60,6 +52,110 @@ namespace KidPix.ResourceExplorer.Controls.ResourcePreview
                 Height = 600,
                 Title = "Callstack Window",
                 Content = new ScrollViewer() { Content = _callstackStackpanel }
+            };
+        }
+
+        public void CloseSession()
+        {
+            _debuggerWindow?.Close();
+            _brushRLECallstackWindow?.Close();
+            _debuggerWindow = null;
+            _brushRLECallstackWindow = null;
+        }
+
+        internal void EvaluateDebugWindows(KidPixResource Resource, TextBox OutputBox)
+        {
+            _debuggerWindow.Hide();
+            _brushRLECallstackWindow.Hide();
+
+            if ((((IPaintable)Resource)?.Header?.DrawAlgorithm ?? BitmapDrawCompression.kDrawRaw) is not BitmapDrawCompression.kDrawRLE) 
+                return; // Is this a BrushRLE16 image? These debug tools aren't indended for anything else
+            if (Resource is IStreamable)
+                _debuggerWindow.Show(); // SHOW STREAM
+            if (API.Importer.tBMP.Decompressor.BMPRLE16BrushDebug.DEBUG_LAST_CALL is not null)
+            {
+                //HEX EDITOR DEBUG WINDOW
+                OutputBox.Text = API.Importer.tBMP.Decompressor.BMPRLE16BrushDebug.DEBUG_LAST_CALL.ToString();
+                if (false) // unsupported 03/25/25
+                    Debug_JumpToDrawCallOffset16(API.Importer.tBMP.Decompressor.BMPRLE16BrushDebug.DEBUG_LAST_CALL);
+                if (API.Importer.tBMP.Decompressor.BMPRLE16BrushDebug.DEBUG_LAST_ERROR != null)
+                { // ENDED WITH AN ERROR
+                    OutputBox.Foreground = Brushes.Red;
+                    OutputBox.ToolTip = API.Importer.tBMP.Decompressor.BMPRLE16BrushDebug.DEBUG_LAST_ERROR;
+                }
+            }
+
+            //CALLSTACK DBG WINDOW
+            _callstackStackpanel.Children.Clear();
+            foreach (KeyValuePair<int, List<API.Importer.tBMP.Decompressor.BMPRLE16Brush.RLEDrawCall>>
+                scanGroup in API.Importer.tBMP.Decompressor.BMPRLE16BrushDebug.DEBUG_DrawCallsByRow)
+            {
+                int scanLine = scanGroup.Key;
+
+                var expander = new Expander()
+                {
+                    Foreground = Brushes.White,
+                    Header = $"Scan{scanLine}",
+                };
+                expander.Expanded += delegate
+                { // Load new Scan Line frame
+                    List<API.Importer.tBMP.Decompressor.BMPRLE16Brush.RLEDrawCall> drawCallsList = scanGroup.Value;
+                    var listBox = new ListBox()
+                    {
+                        ItemsSource = drawCallsList
+                    };
+                    expander.Content = listBox;
+                    listBox.SelectionChanged += (object sender, SelectionChangedEventArgs e) =>
+                    { // Invoke Hex Control to move to offset of selected DrawCall
+                        Debug_JumpToDrawCallOffset16(listBox.SelectedValue as API.Importer.tBMP.Decompressor.BMPRLE16Brush.RLEDrawCall);
+                    };
+                };
+                expander.Collapsed += delegate
+                { // unload Scan Line Frame
+                    expander.Content = null;
+                };
+                _callstackStackpanel.Children.Add(expander);
+            }
+            _brushRLECallstackWindow.Show();
+        }
+
+        internal void AttachStream(Stream dataStream) => _debugger.AttachStream(dataStream);
+
+        private void Debug_JumpToDrawCallOffset16(API.Importer.tBMP.Decompressor.BMPRLE16Brush.RLEDrawCall? DrawCall)
+        {
+            if (DrawCall == null) return;
+            _debugger.HexEditorControl.SelectionStart = DrawCall.OFFSET;
+            _debugger.HexEditorControl.SelectionStop = (DrawCall.LENGTH + DrawCall.OFFSET) - 1;
+            _debuggerWindow.Show();
+            _debuggerWindow.Focus();
+        }
+    }
+
+    /// <summary>
+    /// Interaction logic for RasterImageViewer.xaml
+    /// </summary>
+    public partial class RasterImageViewer : UserControl, IResourcePreviewControl
+    {
+        const int MAX_PALETTE_ENTRIES = 512, MAX_CALLSTACK_RESOLUTION = 100;
+
+        private RasterImageDebugProvider _debugProvider = new();
+
+        public event EventHandler OnPushResourceInfoUpdate;
+
+        private KidPixResource? _currentResource
+        {
+            get;
+            set;
+        }
+        private IPaintable? _paintableResource => _currentResource as IPaintable;        
+
+        public RasterImageViewer()
+        {
+            InitializeComponent();
+
+            Unloaded += delegate
+            {
+                Dispose();
             };
         }
 
@@ -81,11 +177,24 @@ namespace KidPix.ResourceExplorer.Controls.ResourcePreview
         {
             Reset();
 
-            if (Resource is not BMPResource bmpResource) return;
-            _currentResource = bmpResource;
-            _debugger.AttachStream(_currentResource.ImageStream);
+            if (Resource is null) return; // Resource is not null
+            if (Resource is not BMPResource bmpResource && Resource is not BMHResource bmhResource) return; // supported types are BMP and BMH            
+
+            _currentResource = Resource;
+
+            DebugPanel.Visibility = Visibility.Collapsed;
+            if (BMPRLE16BrushDebug.DEBUGGING_ENABLED)
+            {
+                DebugPanel.Visibility = Visibility.Visible;
+                _debugProvider.CreateSession((Brush)FindResource("GeneralWindowBackgroundColorBrush"));
+                if (Resource is IStreamable streamable) // Has an exposed data stream            
+                    _debugProvider.AttachStream(streamable.DataStream);
+            }
 
             OnDisplay();
+
+            //BMH files only -- will close pane if not BMH
+            UpdateBMHExplorerUIPane();
         }
 
         private void OnDisplay()
@@ -95,12 +204,27 @@ namespace KidPix.ResourceExplorer.Controls.ResourcePreview
             CodeRunLinePreviewBox.Foreground = Brushes.Black;
             CodeRunLinePreviewBox.ToolTip = null;
 
-            PreviewImage.Source = _currentResource?.BitmapImage?.Convert(true);
-            if (PreviewImage.Source == null) return;
+            try
+            { // attempt to display image
+                using System.Drawing.Bitmap? bmp = _paintableResource?.Paint();
+                PreviewImage.Source = bmp?.Convert(true);
+                if (bmp == null) return;
 
-            EvaluateDebugWindows();
+                if (BMPRLE16BrushDebug.DEBUGGING_ENABLED)
+                    _debugProvider.EvaluateDebugWindows(_currentResource, CodeRunLinePreviewBox);
 
-            MakePaletteUI(_currentResource?.BitmapImage?.Palette);
+                MakePaletteUI(bmp.Palette);
+            }
+            catch (InvalidDataException ox)
+            { // Could not load this resource exception
+                PreviewImage.Source = null;
+            }
+            catch (Exception e)
+            { // all other exceptions
+                MessageBox.Show(e.Message);
+            }
+            //update the resource explorer's preview field thingy
+            OnPushResourceInfoUpdate?.Invoke(this, new());
         }
 
         private record PaletteEntryDescription(int PaletteIndex);
@@ -151,11 +275,13 @@ namespace KidPix.ResourceExplorer.Controls.ResourcePreview
 
         private void OnPaletteSelection(object sender, MouseButtonEventArgs e)
         {
+            return;
+            //COMPLETELY DISABLED FOR NOW
             if (sender is not Border borderControl) return;
             if (borderControl.Tag is not PaletteEntryDescription desc) return;
-            if (_currentResource?.BitmapImage?.Palette == null) return;
+            if (_paintableResource?.Paint()?.Palette == null) return;
 
-            var palt = _currentResource?.BitmapImage?.Palette;
+            var palt = _paintableResource.Paint()?.Palette;
 
             System.Drawing.Color paltEntry = palt.Entries[desc.PaletteIndex];
         }
@@ -176,70 +302,37 @@ namespace KidPix.ResourceExplorer.Controls.ResourcePreview
         {
             API.Importer.tBMP.Decompressor.BMPRLE16BrushDebug.DEBUG_RUNNING_UNTIL_NEXT_SCAN = true;
             (Application.Current.MainWindow as MainWindow)?.CurrentResExplorerPage?.ReloadResource();
+        }                
+
+        private void HideBMHExplorerPane()
+        {
+            CollapsableBMHPane.Visibility = Visibility.Collapsed;
+            BMHRule.Width = new GridLength(0);
         }
 
-        private void Debug_JumpToDrawCallOffset16(API.Importer.tBMP.Decompressor.BMPRLE16Brush.RLEDrawCall? DrawCall)
+        private void UpdateBMHExplorerUIPane()
         {
-            if (DrawCall == null) return;
-            _debugger.HexEditorControl.SelectionStart = DrawCall.OFFSET;
-            _debugger.HexEditorControl.SelectionStop = (DrawCall.LENGTH + DrawCall.OFFSET) - 1;
-            _debuggerWindow.Show();
-            _debuggerWindow.Focus();
+            HideBMHExplorerPane();
+            if (_currentResource is not BMHResource bmh) return;
+            
+            BMHResourceListBox.ItemsSource = bmh.Table.Resources.Values;
+            CollapsableBMHPane.Visibility = Visibility.Visible;
+            BMHRule.Width = new GridLength(1, GridUnitType.Star);
         }
 
-        private void EvaluateDebugWindows()
+        private void SelectNewBMHFrame(int ResID)
         {
-            _debuggerWindow.Hide();
-            _brushRLECallstackWindow.Hide();
+            if (_currentResource is not BMHResource bmh) return;
+            bmh.SetCurrentResource(ResID);            
+            OnDisplay();
+        }
 
-            if ((_currentResource?.Header?.DrawAlgorithm ?? BitmapDrawCompression.kDrawRaw) is not BitmapDrawCompression.kDrawRLE) return;
-            _debuggerWindow.Show(); // SHOW STREAM
-            if (API.Importer.tBMP.Decompressor.BMPRLE16BrushDebug.DEBUG_LAST_CALL is not null)
-            {
-                //HEX EDITOR DEBUG WINDOW
-                CodeRunLinePreviewBox.Text = API.Importer.tBMP.Decompressor.BMPRLE16BrushDebug.DEBUG_LAST_CALL.ToString();
-                Debug_JumpToDrawCallOffset16(API.Importer.tBMP.Decompressor.BMPRLE16BrushDebug.DEBUG_LAST_CALL);                
-                if (API.Importer.tBMP.Decompressor.BMPRLE16BrushDebug.DEBUG_LAST_ERROR != null)
-                { // ENDED WITH AN ERROR
-                    CodeRunLinePreviewBox.Foreground = Brushes.Red;
-                    CodeRunLinePreviewBox.ToolTip = API.Importer.tBMP.Decompressor.BMPRLE16BrushDebug.DEBUG_LAST_ERROR;
-                }
-            }
-
-            //if (_currentResource.Header.Height > MAX_CALLSTACK_RESOLUTION) return;
-
-            //CALLSTACK DBG WINDOW
-            _callstackStackpanel.Children.Clear();
-            foreach(KeyValuePair<int, List<API.Importer.tBMP.Decompressor.BMPRLE16Brush.RLEDrawCall>> 
-                scanGroup in API.Importer.tBMP.Decompressor.BMPRLE16BrushDebug.DEBUG_DrawCallsByRow)
-            {
-                int scanLine = scanGroup.Key;                
-
-                var expander = new Expander()
-                {
-                    Foreground = Brushes.White,
-                    Header = $"Scan{scanLine}",                    
-                };
-                expander.Expanded += delegate
-                { // Load new Scan Line frame
-                    List<API.Importer.tBMP.Decompressor.BMPRLE16Brush.RLEDrawCall> drawCallsList = scanGroup.Value;
-                    var listBox = new ListBox()
-                    {
-                        ItemsSource = drawCallsList
-                    };
-                    expander.Content = listBox;
-                    listBox.SelectionChanged += (object sender, SelectionChangedEventArgs e) =>
-                    { // Invoke Hex Control to move to offset of selected DrawCall
-                        Debug_JumpToDrawCallOffset16(listBox.SelectedValue as API.Importer.tBMP.Decompressor.BMPRLE16Brush.RLEDrawCall);
-                    };
-                };
-                expander.Collapsed += delegate
-                { // unload Scan Line Frame
-                    expander.Content = null;
-                };
-                _callstackStackpanel.Children.Add(expander);
-            }
-            _brushRLECallstackWindow.Show();
+        private void BMHResourceListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (_currentResource is not BMHResource bmh) return;
+            if (BMHResourceListBox.SelectedValue == null) return;
+            if (BMHResourceListBox.SelectedValue is not BMHFrameInfo info) return;            
+            SelectNewBMHFrame(info.ResourceID);
         }
 
         private void CopyImageClipboardMenuItem_Click(object sender, RoutedEventArgs e)
@@ -247,10 +340,13 @@ namespace KidPix.ResourceExplorer.Controls.ResourcePreview
             Clipboard.SetImage((BitmapSource)PreviewImage.Source);
         }
 
+        public object? GetResourceInformationContext() => _paintableResource?.Header;
+
         public void Dispose()
         {
             _currentResource?.Dispose();
             _currentResource = null;
-        }
+            _debugProvider.CloseSession();
+        }        
     }
 }

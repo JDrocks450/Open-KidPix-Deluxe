@@ -8,6 +8,14 @@ using System.Threading.Tasks;
 namespace KidPix.API.Importer
 {
     /// <summary>
+    /// An object with an exposed <see cref="Stream">
+    /// </summary>
+    public interface IStreamable
+    {
+        public Stream DataStream { get; }
+    }
+
+    /// <summary>
     /// Base class for all importer resources
     /// </summary>
     public abstract class KidPixResource : IDisposable

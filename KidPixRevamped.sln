@@ -1,13 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.13.35605.110 d17.13
+VisualStudioVersion = 17.13.35605.110
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ResourceViewer", "KidPixRevamped\ResourceViewer.csproj", "{F595C997-2272-4E9A-BF15-A6DFC55D926D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KidPix.API", "KidPix.API\KidPix.API.csproj", "{D5571C81-C48B-42CC-94B8-86FB09E2B67C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KidPix.ResourceExplorer", "KidPix.ResourceExplorer\KidPix.ResourceExplorer.csproj", "{C8DC7798-FDCA-48C0-9C90-2FE4EF79E6B9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KidPix.App", "KidPix.App\KidPix.App.csproj", "{113F5935-1DCE-4737-8324-101E558B8E83}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{C8DC7798-FDCA-48C0-9C90-2FE4EF79E6B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C8DC7798-FDCA-48C0-9C90-2FE4EF79E6B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C8DC7798-FDCA-48C0-9C90-2FE4EF79E6B9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{113F5935-1DCE-4737-8324-101E558B8E83}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{113F5935-1DCE-4737-8324-101E558B8E83}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{113F5935-1DCE-4737-8324-101E558B8E83}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{113F5935-1DCE-4737-8324-101E558B8E83}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

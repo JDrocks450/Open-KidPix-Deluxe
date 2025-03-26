@@ -85,6 +85,7 @@ namespace KidPix.API.Importer.Mohawk
             return buffer;
         }
 
+        public Task<KidPixResource?> TryImportResourceAsync(MHWKIdentifierToken Token) => TryImportResourceAsync(GetEntryByID(Token));
         public async Task<KidPixResource?> TryImportResourceAsync(ResourceTableEntry ResourceDefinition)
         {
             MemoryStream stream = new MemoryStream();
