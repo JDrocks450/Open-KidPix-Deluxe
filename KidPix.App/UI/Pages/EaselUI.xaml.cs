@@ -22,13 +22,20 @@ namespace KidPix.App.UI.Pages
     /// <summary>
     /// Interaction logic for Easel.xaml
     /// </summary>
-    public partial class Easel : Page
+    public partial class EaselUI : Page
     {
-        public Easel()
+        string[] MyReferencedArchives =
         {
-            MHWKFile easelArchive = MHWKImporter.Import(@"C:\Program Files (x86)\The Learning Company\Kid Pix Deluxe 4\Data\Easel.MHK");
-            KidPixUILibrary.LinkedArchives.Add(easelArchive);
-            
+            "Easel.MHK", "Tools\\TP.MHK"
+        };
+        public EaselUI()
+        {
+            foreach (var resource in MyReferencedArchives)
+            {
+                MHWKFile easelArchive = MHWKImporter.Import(@"C:\Program Files (x86)\The Learning Company\Kid Pix Deluxe 4\Data\" + resource);
+                KidPixUILibrary.LinkedArchives.Add(easelArchive);
+            }
+
             InitializeComponent();            
             Loaded += Easel_Loaded;
         }
@@ -38,7 +45,6 @@ namespace KidPix.App.UI.Pages
             //**LOAD INI
 
             //**LOAD CONTENT            
-            Background = await KidPixUILibrary.ResourceToBrush(new API.MHWKIdentifierToken(CHUNK_TYPE.tBMP, (ushort)Easel_BMPResources.EaselBackground));
         }
     }
 }

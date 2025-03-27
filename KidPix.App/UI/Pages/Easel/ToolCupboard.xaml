@@ -1,0 +1,130 @@
+﻿<Page x:Class="KidPix.App.UI.Pages.Easel.ToolCupboard"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:KidPix.App.UI.Pages.Easel" xmlns:brushes="clr-namespace:KidPix.App.UI.Brushes" xmlns:controls="clr-namespace:KidPix.App.UI.Controls"
+      mc:Ignorable="d" 
+      d:DesignHeight="600" d:DesignWidth="130"
+      Title="ToolCupboard">
+    <Page.Resources>
+        <brushes:KPImageBrush x:Key="PaletteSplooshControlBrushKey" AssetType="tBMH" AssetID="1000" BMHFrame="196"/>
+        <brushes:KPImageBrush x:Key="PaletteSplashBrushKey" AssetType="tBMP" AssetID="7002"/>
+    </Page.Resources>
+
+    <Grid>
+        <Grid.Background>
+            <SolidColorBrush Color="Green" Opacity="0"/>
+        </Grid.Background>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="65" Name="TopRule"/>
+            <RowDefinition Height="Auto" Name="ToolsRule"/>
+            <RowDefinition Height="1*" Name="UndoBombRule"/>
+            <RowDefinition Height="Auto" Name="PaletteSplooshRule"/>
+        </Grid.RowDefinitions>
+        <Canvas Grid.Row="0">
+            <controls:KPButton x:Name="IdeaMachineButton" Width="50" Height="50" Canvas.Left="8" Canvas.Top="3" ScaleFactor="1.25" ShouldAnimationAutoSize="False">
+                <controls:KPButton.KPBackgroundBrush>
+                    <brushes:KPAnimatedImageBrush AssetType="tBMH" AssetID="1000" BMHFrame="15" Range="16..17" AnimationMode="Loop"/>
+                </controls:KPButton.KPBackgroundBrush>
+            </controls:KPButton>
+            <controls:KPButton x:Name="HelpButton" Width="50" Height="50" Canvas.Left="66" Canvas.Top="17" ScaleFactor="1.25" ShouldAnimationAutoSize="True">
+                <controls:KPButton.KPBackgroundBrush>
+                    <brushes:KPAnimatedImageBrush AssetType="tBMH" AssetID="1000" BMHFrame="95" Range="94,96..98" AnimationMode="Boomerang"/>
+                </controls:KPButton.KPBackgroundBrush>
+            </controls:KPButton>
+        </Canvas>
+        <Viewbox Margin="5,0,10,10" VerticalAlignment="Top" Grid.Row="1">
+            <Grid Width="90" Height="270">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="1*"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel>
+                    <StackPanel.Resources>
+                        <Style TargetType="controls:KPButton">
+                            <Setter Property="Margin" Value="0,0,0,4"/>
+                        </Style>
+                    </StackPanel.Resources>
+                    <controls:KPButton x:Name="DrawButton" Width="50" Height="50" Margin="10,0,0,4">
+                        <controls:KPButton.KPBackgroundBrush>
+                            <brushes:KPAnimatedImageBrush AssetType="tBMH" AssetID="1000" BMHFrame="25" Range="_..4"/>
+                        </controls:KPButton.KPBackgroundBrush>
+                    </controls:KPButton>
+                    <controls:KPButton x:Name="PaintButton" Width="50" Height="50"  Margin="9,0,0,4">
+                        <controls:KPButton.KPBackgroundBrush>
+                            <brushes:KPAnimatedImageBrush AssetType="tBMH" AssetID="1000" BMHFrame="30" Range="_..4" AnimationMode="Boomerang"/>
+                        </controls:KPButton.KPBackgroundBrush>
+                    </controls:KPButton>
+                    <controls:KPButton x:Name="StickersButton" Width="50" Height="50" Margin="5,0,0,4">
+                        <controls:KPButton.KPBackgroundBrush>
+                            <brushes:KPAnimatedImageBrush  AssetType="tBMH" AssetID="1000" BMHFrame="5" Range="_..4"/>
+                        </controls:KPButton.KPBackgroundBrush>
+                    </controls:KPButton>
+                    <controls:KPButton x:Name="MixersButton" Width="50" Height="50"  Margin="5,0,0,4">
+                        <controls:KPButton.KPBackgroundBrush>
+                            <brushes:KPAnimatedImageBrush AssetType="tBMH" AssetID="1000" BMHFrame="42" Range="_..4"/>
+                        </controls:KPButton.KPBackgroundBrush>
+                    </controls:KPButton>
+                    <controls:KPButton x:Name="AudioButton" Width="50" Height="50" Margin="5,0,0,4">
+                        <controls:KPButton.KPBackgroundBrush>
+                            <brushes:KPAnimatedImageBrush AssetType="tBMH" AssetID="1000" BMHFrame="19" Range="_..4"/>
+                        </controls:KPButton.KPBackgroundBrush>
+                    </controls:KPButton>
+                    <controls:KPButton x:Name="SelectionButton" Width="50" Height="50"  Margin="4,0,0,4">
+                        <controls:KPButton.KPBackgroundBrush>
+                            <brushes:KPAnimatedImageBrush AssetType="tBMH" AssetID="1000" BMHFrame="58" Range="_..4"/>
+                        </controls:KPButton.KPBackgroundBrush>
+                    </controls:KPButton>
+                </StackPanel>
+                <StackPanel Grid.Column="1">
+                    <StackPanel.Resources>
+                        <Style TargetType="controls:KPButton">
+                            <Setter Property="Margin" Value="0,0,0,4"/>
+                        </Style>
+                    </StackPanel.Resources>
+                    <controls:KPButton x:Name="ABCButton" Width="50" Height="50"  Margin="-3,0,0,4">
+                        <controls:KPButton.KPBackgroundBrush>
+                            <brushes:KPAnimatedImageBrush AssetType="tBMH" AssetID="1000" BMHFrame="53" Range="_..4"/>
+                        </controls:KPButton.KPBackgroundBrush>
+                    </controls:KPButton>
+                    <controls:KPButton x:Name="FillButton" Width="50" Height="50"  Margin="-4,0,0,4">
+                        <controls:KPButton.KPBackgroundBrush>
+                            <brushes:KPAnimatedImageBrush AssetType="tBMH" AssetID="1000" BMHFrame="36" Range="_..4"/>
+                        </controls:KPButton.KPBackgroundBrush>
+                    </controls:KPButton>
+                    <controls:KPButton x:Name="StampsButton" Width="50" Height="50"  Margin="1,0,0,4">
+                        <controls:KPButton.KPBackgroundBrush>
+                            <brushes:KPAnimatedImageBrush AssetType="tBMH" AssetID="1000" BMHFrame="48" Range="_..4"/>
+                        </controls:KPButton.KPBackgroundBrush>
+                    </controls:KPButton>
+                    <controls:KPButton x:Name="BackgroundsButton" Width="50" Height="50"  Margin="-5,5,0,5">
+                        <controls:KPButton.KPBackgroundBrush>
+                            <brushes:KPAnimatedImageBrush AssetType="tBMH" AssetID="1000" BMHFrame="0" Range="_..4"/>
+                        </controls:KPButton.KPBackgroundBrush>
+                    </controls:KPButton>
+                    <controls:KPButton x:Name="AnimationsButton" Width="50" Height="50" Margin="-3,5,0,5" ShouldAnimationAutoSize="True">
+                        <controls:KPButton.KPBackgroundBrush>
+                            <brushes:KPAnimatedImageBrush AssetType="tBMH" AssetID="1000" BMHFrame="10" Range="_..4" AnimationMode="Boomerang"/>
+                        </controls:KPButton.KPBackgroundBrush>
+                    </controls:KPButton>
+                    <controls:KPButton x:Name="EraserButton" Width="50" Height="50"  Margin="-3,10,0,5">
+                        <controls:KPButton.KPBackgroundBrush>
+                            <brushes:KPAnimatedImageBrush AssetType="tBMH" AssetID="1000" BMHFrame="64" Range="_..4" AnimationMode="Boomerang"/>
+                        </controls:KPButton.KPBackgroundBrush>
+                    </controls:KPButton>
+                </StackPanel>
+            </Grid>
+        </Viewbox>
+        <Canvas Grid.Row="2">
+            <controls:KPButton x:Name="UndoButton" Width="50" Height="50" Canvas.Left="75" Canvas.Top="16" ScaleFactor="1.25">
+                <controls:KPButton.KPBackgroundBrush>
+                    <brushes:KPAnimatedImageBrush AssetType="tBMH" AssetID="1000" BMHFrame="155" Range="121..173" AnimationMode="Boomerang"/>
+                </controls:KPButton.KPBackgroundBrush>
+            </controls:KPButton>
+        </Canvas>
+        <Grid Name="PaletteSplooshControl" Grid.Row="4" Width="107" Height="108" HorizontalAlignment="Left" VerticalAlignment="Top" Background="{Binding BrushReference, Source={StaticResource PaletteSplooshControlBrushKey}}">
+            <Border Width="55" Height="55" HorizontalAlignment="Center" VerticalAlignment="Center" Background="{Binding BrushReference, Source={StaticResource PaletteSplashBrushKey}}" Margin="1,0,0,9"/>
+        </Grid>
+    </Grid>
+</Page>

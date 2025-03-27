@@ -2,23 +2,10 @@
 using KidPix.API.Importer.Mohawk;
 using KidPix.API.Importer.tBMP.Decompressor;
 using KidPix.API.Util;
-using System.Drawing;
 using System.Reflection.PortableExecutable;
 
 namespace KidPix.API.Importer.Graphics
 {
-    /// <summary>
-    /// An object that has exposed functions for rendering an image to the screen
-    /// </summary>
-    public interface IPaintable
-    {
-        public BMPHeader Header { get; }
-        /// <summary>
-        /// Gets a <see cref="Bitmap"/> representation of this object
-        /// </summary>
-        /// <returns></returns>
-        public Bitmap Paint();
-    }
 
     /// <summary>
     /// Imports graphics resources from: <see cref="CHUNK_TYPE.tBMH"/>, <see cref="CHUNK_TYPE.tBMP"/> or other recognized graphics chunks

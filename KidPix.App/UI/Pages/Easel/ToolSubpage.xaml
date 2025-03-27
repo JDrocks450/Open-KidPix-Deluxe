@@ -1,0 +1,114 @@
+﻿<Page x:Class="KidPix.App.UI.Pages.Easel.ToolSubpage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:KidPix.App.UI.Pages.Easel" xmlns:brushes="clr-namespace:KidPix.App.UI.Brushes" xmlns:controls="clr-namespace:KidPix.App.UI.Controls"
+      mc:Ignorable="d" Name="HOST"
+      Height="90" d:DesignWidth="700"
+      Title="ToolSubpage">
+    <Page.Resources>
+        <!--FIRST SECTION RESOURCES-->
+        <brushes:KPImageBrush x:Key="FS_PencilsTrayKey" AssetType="tBMH" AssetID="18000" BMHFrame="429"/>
+        <brushes:KPImageBrush x:Key="FS_ErasersTrayKey" AssetType="tBMH" AssetID="18000" BMHFrame="430"/>
+        <brushes:KPImageBrush x:Key="FS_BucketsTrayKey" AssetType="tBMH" AssetID="18000" BMHFrame="431"/>
+        <brushes:KPImageBrush x:Key="FS_MixersTrayKey" AssetType="tBMH" AssetID="18000" BMHFrame="432"/>
+        <brushes:KPImageBrush x:Key="FS_PaintsTrayKey" AssetType="tBMH" AssetID="18000" BMHFrame="433"/>
+        <brushes:KPImageBrush x:Key="FS_ClippingSelectionsTrayKey" AssetType="tBMH" AssetID="18000" BMHFrame="434"/>
+        
+        <!--SECOND SECTION RESOURCES-->
+        <brushes:KPImageBrush x:Key="SS_GenericToolBackgroundKey" AssetType="tBMH" AssetID="18000" BMHFrame="444"/>
+        <brushes:KPImageBrush x:Key="SS_OctagonalTallBackgroundKey" AssetType="tBMH" AssetID="18000" BMHFrame="743"/>
+        <brushes:KPImageBrush x:Key="SS_OctagonalMedBackgroundKey" AssetType="tBMH" AssetID="18000" BMHFrame="742"/>
+        <brushes:KPImageBrush x:Key="SS_OctagonalMedLightBackgroundKey" AssetType="tBMH" AssetID="18000" BMHFrame="747"/>
+        <brushes:KPImageBrush x:Key="SS_OctagonalSmallBackgroundKey" AssetType="tBMH" AssetID="18000" BMHFrame="737"/>
+
+        <brushes:KPImageBrush x:Key="SS_PenSizeSelectBGKey" AssetType="tBMH" AssetID="18000" BMHFrame="746"/>
+        
+        <brushes:KPImageBrush x:Key="SS_SizeSelectMedBGKey" AssetType="tBMH" AssetID="18000" BMHFrame="745"/>
+        <brushes:KPImageBrush x:Key="SS_SizeSelectTallBGKey" AssetType="tBMH" AssetID="18000" BMHFrame="744"/>
+    </Page.Resources>
+    
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="203"/>
+            <ColumnDefinition Width="5"/>
+            <ColumnDefinition Width="413"/>
+            <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
+        <Grid Name="FirstSection" MouseLeftButtonUp="FirstSection_MouseLeftButtonUp">
+            <Grid.Style>
+                <Style TargetType="Grid">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding CurrentState, ElementName=HOST}" Value="Pencils">
+                            <Setter Property="Background" Value="{Binding BrushReference, Source={StaticResource FS_PencilsTrayKey}}"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding CurrentState, ElementName=HOST}" Value="Paints">
+                            <Setter Property="Background" Value="{Binding BrushReference, Source={StaticResource FS_PaintsTrayKey}}"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding CurrentState, ElementName=HOST}" Value="Fills">
+                            <Setter Property="Background" Value="{Binding BrushReference, Source={StaticResource FS_BucketsTrayKey}}"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding CurrentState, ElementName=HOST}" Value="Erasers">
+                            <Setter Property="Background" Value="{Binding BrushReference, Source={StaticResource FS_ErasersTrayKey}}"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding CurrentState, ElementName=HOST}" Value="Mixers">
+                            <Setter Property="Background" Value="{Binding BrushReference, Source={StaticResource FS_MixersTrayKey}}"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding CurrentState, ElementName=HOST}" Value="ClippingSelections">
+                            <Setter Property="Background" Value="{Binding BrushReference, Source={StaticResource FS_ClippingSelectionsTrayKey}}"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Grid.Style>
+            <Canvas>
+                <controls:KPButton x:Name="PencilButton" Width="50" Height="50" Canvas.Left="20" Canvas.Top="10" ScaleFactor="1.25" ShouldAnimationAutoSize="True">
+                    <controls:KPButton.KPBackgroundBrush>
+                        <brushes:KPAnimatedImageBrush AssetType="tBMH" AssetID="18000" BMHFrame="14" Range="12..16" AnimationMode="PlayOnce" RepeatAmount="1"/>
+                    </controls:KPButton.KPBackgroundBrush>
+                </controls:KPButton>
+                <controls:KPButton x:Name="ChalkButton" Width="50" Height="50" Canvas.Left="65" Canvas.Top="10" ScaleFactor="1.25">
+                    <controls:KPButton.KPBackgroundBrush>
+                        <brushes:KPAnimatedImageBrush AssetType="tBMH" AssetID="18000" BMHFrame="23" Range="21..23" AnimationMode="Boomerang" RepeatAmount="2"/>
+                    </controls:KPButton.KPBackgroundBrush>
+                </controls:KPButton>
+                <controls:KPButton x:Name="CrayonButton" Width="50" Height="50" Canvas.Left="108" Canvas.Top="10" ScaleFactor="1.25">
+                    <controls:KPButton.KPBackgroundBrush>
+                        <brushes:KPAnimatedImageBrush AssetType="tBMH" AssetID="18000" BMHFrame="55" Range="55..56" AnimationMode="Boomerang" RepeatAmount="2"/>
+                    </controls:KPButton.KPBackgroundBrush>
+                </controls:KPButton>
+                <controls:KPButton x:Name="HighlighterButton" Width="50" Height="50" Canvas.Left="159" Canvas.Top="10" ScaleFactor="1.25">
+                    <controls:KPButton.KPBackgroundBrush>
+                        <brushes:KPAnimatedImageBrush AssetType="tBMH" AssetID="18000" BMHFrame="71" Range="71..75" AnimationMode="PlayOnce" RepeatAmount="1"/>
+                    </controls:KPButton.KPBackgroundBrush>
+                </controls:KPButton>
+            </Canvas>
+        </Grid>
+        <Grid Name="SecondSection" Grid.Column="2">
+            <Grid.Style>
+                <Style TargetType="Grid">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding CurrentState, ElementName=HOST}" Value="Pencils">
+                            <Setter Property="Background" Value="{Binding BrushReference, Source={StaticResource SS_GenericToolBackgroundKey}}"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding CurrentState, ElementName=HOST}" Value="Paints">
+                            <Setter Property="Background" Value="{Binding BrushReference, Source={StaticResource SS_OctagonalMedBackgroundKey}}"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding CurrentState, ElementName=HOST}" Value="Fills">
+                            <Setter Property="Background" Value="{Binding BrushReference, Source={StaticResource SS_OctagonalSmallBackgroundKey}}"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding CurrentState, ElementName=HOST}" Value="Erasers">
+                            <Setter Property="Background" Value="{Binding BrushReference, Source={StaticResource SS_OctagonalMedBackgroundKey}}"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding CurrentState, ElementName=HOST}" Value="Mixers">
+                            <Setter Property="Background" Value="{Binding BrushReference, Source={StaticResource SS_OctagonalMedBackgroundKey}}"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding CurrentState, ElementName=HOST}" Value="ClippingSelections">
+                            <Setter Property="Background" Value="{Binding BrushReference, Source={StaticResource SS_OctagonalTallBackgroundKey}}"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Grid.Style>
+        </Grid>
+    </Grid>
+</Page>

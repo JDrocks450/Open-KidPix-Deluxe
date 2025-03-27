@@ -1,6 +1,7 @@
 ﻿using KidPix.API.Importer.Graphics.Brushes;
 using KidPix.API.Importer.Mohawk;
 using System.Drawing;
+using System.Drawing.Imaging;
 
 namespace KidPix.API.Importer.Graphics
 {
@@ -57,9 +58,7 @@ namespace KidPix.API.Importer.Graphics
         /// The currently selected <see cref="BMHFrameInfo"/> which will be used by subsequent calls to <see cref="Paint()"/>
         /// </summary>
         public BMHFrameInfo SelectedResource { get; private set; }
-        /// <summary>
-        /// The <see cref="BMPHeader"/> for the currently selected Resource
-        /// </summary>
+
         public BMPHeader Header { get; private set; }
 
         /// <summary>
@@ -77,6 +76,8 @@ namespace KidPix.API.Importer.Graphics
         }
 
         public BMHTable Table { get; }
+
+        public ColorPalette? Palette { get; set; }
 
         public byte[] ReadFrameData(int ResourceID)
         {
@@ -117,8 +118,7 @@ namespace KidPix.API.Importer.Graphics
                 header == null || rawData == null)
                 throw new InvalidDataException("Could not render this resource.");
             Header = header;
-            using MemoryStream ms = new(rawData);
-            return BMPBrush.Plaster(Header, ms);
+            return BMPBrush.Plaster(Header, rawData, Palette);
         }
 
         public override void Dispose()

@@ -4,7 +4,7 @@ using System.Resources;
 
 namespace KidPix.API.Importer.Mohawk
 {
-    public class MHWKResourceTable : IDictionary<CHUNK_TYPE,HashSet<ResourceTableEntry>>
+    public class MHWKResourceTable : IDictionary<CHUNK_TYPE, HashSet<ResourceTableEntry>>
     {
         private Dictionary<MHWKIdentifierToken, ResourceTableEntry> _idMap = new();
 
@@ -40,7 +40,7 @@ namespace KidPix.API.Importer.Mohawk
 
         private void EnsureChunkTypePresentOnResourceTableEntry(CHUNK_TYPE key, params ResourceTableEntry[] value)
         {
-            foreach (var item in value) 
+            foreach (var item in value)
                 item.EnclosingType = key;
         }
 
@@ -107,8 +107,16 @@ namespace KidPix.API.Importer.Mohawk
         IEnumerator IEnumerable.GetEnumerator()
         {
             return ((IEnumerable)_map).GetEnumerator();
-        }        
+        }
 
-        #endregion
+        internal bool ContainsEntry(MHWKIdentifierToken token)
+        {
+            if (_idMap.ContainsKey(token)) return true;
+            if (!ContainsKey(token.ChunkType)) return false;
+            return this[token.ChunkType].FirstOrDefault(x => x.Id == token.AssetID) != default;
+        }
     }
+
+    #endregion
 }
+

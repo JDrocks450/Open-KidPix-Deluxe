@@ -1,0 +1,35 @@
+﻿<Page x:Class="KidPix.App.UI.Pages.EaselUI"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:KidPix.App.UI.Pages" xmlns:controls="clr-namespace:KidPix.App.UI.Controls" xmlns:brushes="clr-namespace:KidPix.App.UI.Brushes" xmlns:easel="clr-namespace:KidPix.App.UI.Pages.Easel"
+      mc:Ignorable="d" 
+      Height="600" Width="800"
+      Title="Easel">
+    <Page.Resources>
+        <brushes:KPImageBrush x:Key="EaselBackgroundBrushKey" AssetType="tBMP" AssetID="1000"/>
+    </Page.Resources>
+
+    <Grid Background="{Binding Source={StaticResource EaselBackgroundBrushKey}, Path=BrushReference}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="130"/>
+            <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Name="ScreenUISafezone" Height="1*"/>
+            <RowDefinition Height="102"/>
+            <RowDefinition Height="20"/>
+        </Grid.RowDefinitions>
+        <Frame Grid.RowSpan="2">
+            <Frame.Content>
+                <easel:ToolCupboard/>
+            </Frame.Content>
+        </Frame>
+        <Frame Grid.Row="1" Grid.Column="1" Margin="-17,0,0,0">
+            <Frame.Content>
+                <easel:ToolSubpage/>
+            </Frame.Content>
+        </Frame>
+    </Grid>
+</Page>

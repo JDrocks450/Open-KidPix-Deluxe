@@ -1,4 +1,5 @@
 ﻿using KidPix.API.Importer.Mohawk;
+using KidPix.App.UI.Brushes;
 using KidPix.App.UI.Util;
 using System;
 using System.Collections.Generic;
@@ -17,29 +18,40 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace KidPix.App.UI.Controls
-{
-    public class KPImageBrush
+{    
+    public static class KPGenericControlInterface
     {
-        public CHUNK_TYPE AssetType { get; set; }
-        public ushort AssetID { get; set; }
-        public int BMHFrame { get; set; } = -1;
-        public int BMHAnimationFrames { get; set; } = 1;
+        public static void AttachBrushBackground(in UIElement Element, KPBrush AttachBrush)
+        {
+
+        }
+    }
+
+    public interface IKPBackgroundBrushable
+    {
+        public KPBrush KPBackgroundBrush { get; set; }
     }
 
     /// <summary>
     /// Interaction logic for KPButton.xaml
     /// </summary>
-    public partial class KPButton : Button
+    public partial class KPButton : Button, IKPBackgroundBrushable
     {
-        private List<ImageSource> _animationFrames = new();
+        private double _scaleFactor = 1.0;
 
-        private int _animationClock = 0;
-        private Task? _animationTask;
+        public KPBrush KPBackgroundBrush { get; set; }
 
-        public KPImageBrush KPImageBrush
+        public bool ShouldAutoSize { get; set; } = true;
+        public bool ShouldAnimationAutoSize { get; set; } = false;
+        public double ScaleFactor
         {
-            get; set;
-        } 
+            get => _scaleFactor; 
+            set
+            {
+                _scaleFactor = value;
+                DoAutoSize();
+            }
+        }        
 
         public KPButton()
         {
@@ -49,17 +61,27 @@ namespace KidPix.App.UI.Controls
         }
 
         private async void KPButton_Loaded(object sender, RoutedEventArgs e)
-        {            
+        {
             //**LOAD ANIMATION FRAMES
-            for(int i = 0; i < KPImageBrush.BMHAnimationFrames; i++)
+
+            await KPBackgroundBrush.LoadResources();
+            await KPBackgroundBrush.InvalidateBrush();
+            Background = KPBackgroundBrush;
+            DoAutoSize();
+            if (KPBackgroundBrush is KPAnimatedImageBrush animBrush)
             {
-                var img = await KidPixUILibrary.ResourceToBrush(new API.MHWKIdentifierToken(KPImageBrush.AssetType, (ushort)(KPImageBrush.AssetID )), KPImageBrush.BMHFrame + i);
-                if (img == null) throw new NullReferenceException(nameof(img));
-                _animationFrames.Add(img.ImageSource);
+                animBrush.OnFrameChanged += delegate { if(ShouldAnimationAutoSize) DoAutoSize(); };
+                animBrush.OnAnimationStopped += delegate { if (ShouldAnimationAutoSize) DoAutoSize(); };
             }
-            Background = new ImageBrush(_animationFrames[0]);
-            Width = _animationFrames[0].Width;
-            Height = _animationFrames[0].Height;
+        }
+
+        private void DoAutoSize()
+        {            
+            if (Background is ImageBrush imgBrush && ShouldAutoSize)
+            {
+                Width = imgBrush.ImageSource.Width * ScaleFactor;
+                Height = imgBrush.ImageSource.Height * ScaleFactor;                
+            }
         }
 
         /// <summary>
@@ -69,33 +91,14 @@ namespace KidPix.App.UI.Controls
         /// <param name="e"></param>
         private void Button_MouseEnter(object sender, MouseEventArgs e)
         {
-            if (_animationFrames.Count < 2) return;
-
-            _animationClock = 1;
-            if (_animationTask != null)
-                _animationTask.Dispose();
-            _animationTask = Task.Run(delegate
-            {
-                bool mouseOver = true;
-                while (mouseOver)
-                {
-                    Task.Delay(1000/7).Wait(); // 5fps
-                    Dispatcher.Invoke(() =>
-                    {
-                        Background = new ImageBrush(_animationFrames[_animationClock % _animationFrames.Count]);
-                        mouseOver = IsMouseOver;
-                    }, System.Windows.Threading.DispatcherPriority.Render);
-                    _animationClock++;
-                }
-            });
+            if (KPBackgroundBrush is KPAnimatedImageBrush animBrush)
+                animBrush.Play();
         }
 
         private void Button_MouseLeave(object sender, MouseEventArgs e)
         {
-            Dispatcher.Invoke(() =>
-            {
-                Background = new ImageBrush(_animationFrames[0]);
-            }, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+            if (KPBackgroundBrush is KPAnimatedImageBrush animBrush)
+                animBrush.Stop();
         }
     }
 }

@@ -4,12 +4,12 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:KidPix.App" xmlns:pages="clr-namespace:KidPix.App.UI.Pages"
-        mc:Ignorable="d"
+        mc:Ignorable="d" Background="Black"
         Title="Real Deal" Height="768" Width="1024">
     <Viewbox RenderOptions.BitmapScalingMode="HighQuality">
         <Frame Width="800" Height="600">
             <Frame.Content>
-                <pages:Easel/>
+                <pages:EaselUI/>
             </Frame.Content>
         </Frame>
     </Viewbox>

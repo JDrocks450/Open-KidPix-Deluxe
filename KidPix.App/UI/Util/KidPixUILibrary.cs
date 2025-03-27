@@ -20,8 +20,8 @@ namespace KidPix.App.UI.Util
         {
             foreach (var archive in LinkedArchives)
             {
+                if (!archive.ContainsResourceEntry(Token)) continue;
                 var asset = await archive.TryImportResourceAsync(Token) as T;
-                if (asset == null) continue;
                 return asset;
             }
             return default;
@@ -30,6 +30,7 @@ namespace KidPix.App.UI.Util
         public static async Task<ImageBrush?> PaintabletoBrush(IPaintable Paintable)
         {
             using System.Drawing.Bitmap bmp = Paintable.Paint();
+            bmp.MakeTransparent(System.Drawing.Color.Black);
             var brush = new ImageBrush(bmp.Convert(true));            
             RenderOptions.SetBitmapScalingMode(brush, BitmapScalingMode.NearestNeighbor);
             return brush;

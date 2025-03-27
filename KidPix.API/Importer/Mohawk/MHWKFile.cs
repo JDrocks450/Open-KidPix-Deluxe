@@ -92,5 +92,7 @@ namespace KidPix.API.Importer.Mohawk
             await ReadResourceDataAsync(stream, ResourceDefinition);
             return MHWKResourceImporterBase.DefaultImport(stream, ResourceDefinition);
         }
+
+        public bool ContainsResourceEntry(MHWKIdentifierToken token) => Resources.ContainsEntry(token);
     }
 }

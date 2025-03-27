@@ -25,8 +25,16 @@ namespace KidPix.API.Importer.Graphics.Brushes
             Bytes.ReadExactly(array);
             return Plaster(Header, array);
         }
-        public static Bitmap? Plaster(BMPHeader Header, byte[] RawData, bool ShouldFlipEndian = true)
+        public static Bitmap? Plaster(BMPHeader Header, byte[] RawData, ColorPalette? CustomPalette = null, bool ShouldFlipEndian = true)
         {
+            if(Header.BitsPerPixel == 8)
+            {
+                Color[] arr = new Color[256];
+                for (int i = 0; i < 256; i++)
+                    arr[i] = Color.FromArgb(i, i, i);
+                CustomPalette = new(arr);
+            }
+
             PixelFormat Format = Header.BitDepthDescription switch
             {
                 BitmapFormat.kBitsPerPixel16 => PixelFormat.Format16bppRgb555,
@@ -48,6 +56,9 @@ namespace KidPix.API.Importer.Graphics.Brushes
             nint pNative = bmpData.Scan0;
             Marshal.Copy(RawData, 0, pNative, expectedSize);
             bmp.UnlockBits(bmpData);
+
+            if (CustomPalette != null)
+                bmp.Palette = CustomPalette;
 
             return bmp;
         }

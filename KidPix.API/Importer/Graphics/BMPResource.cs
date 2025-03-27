@@ -1,6 +1,7 @@
 ﻿using KidPix.API.Importer.Graphics.Brushes;
 using KidPix.API.Importer.Mohawk;
 using System.Drawing;
+using System.Drawing.Imaging;
 
 namespace KidPix.API.Importer.Graphics
 {
@@ -20,13 +21,14 @@ namespace KidPix.API.Importer.Graphics
         public BMPHeader Header { get; }
         public byte[] ImageData { get; }
         public Stream DataStream { get; }
+        public ColorPalette? Palette { get; set; } = null;
 
         /// <summary>
         /// Paints this <see cref="BMHResource"/>
         /// <para/>Please note a new <see cref="Bitmap"/> is created every time this is called, please destroy it once finished.
         /// </summary>
         /// <returns></returns>
-        public Bitmap Paint() => BMPBrush.Plaster(Header, ImageData);        
+        public Bitmap Paint() => BMPBrush.Plaster(Header, ImageData, Palette);        
 
         public override void Dispose()
         {
