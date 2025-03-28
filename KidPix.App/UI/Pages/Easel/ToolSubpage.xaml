@@ -36,6 +36,7 @@
             <ColumnDefinition Width="413"/>
             <ColumnDefinition Width="1*"/>
         </Grid.ColumnDefinitions>
+        <!--CHANGE BG BASED ON CURRENT UI STATE-->
         <Grid Name="FirstSection" MouseLeftButtonUp="FirstSection_MouseLeftButtonUp">
             <Grid.Style>
                 <Style TargetType="Grid">
@@ -61,7 +62,18 @@
                     </Style.Triggers>
                 </Style>
             </Grid.Style>
-            <Canvas>
+            <!--CHANGE TOOL GROUP DEPENDING ON CURRENT UI STATE-->
+            <Canvas Name="PencilsToolGroup">
+                <Canvas.Style>
+                    <Style TargetType="Canvas">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding CurrentState, ElementName=HOST}" Value="Pencils">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Canvas.Style>
                 <controls:KPButton x:Name="PencilButton" Width="50" Height="50" Canvas.Left="20" Canvas.Top="10" ScaleFactor="1.25" ShouldAnimationAutoSize="True">
                     <controls:KPButton.KPBackgroundBrush>
                         <brushes:KPAnimatedImageBrush AssetType="tBMH" AssetID="18000" BMHFrame="14" Range="12..16" AnimationMode="PlayOnce" RepeatAmount="1"/>
@@ -84,6 +96,7 @@
                 </controls:KPButton>
             </Canvas>
         </Grid>
+        <!--CHANGE TOOL AREA BASED ON CURRENT UI STATE-->
         <Grid Name="SecondSection" Grid.Column="2">
             <Grid.Style>
                 <Style TargetType="Grid">

@@ -9,7 +9,7 @@
     <Viewbox RenderOptions.BitmapScalingMode="HighQuality">
         <Frame Width="800" Height="600">
             <Frame.Content>
-                <pages:EaselUI/>
+                <pages:EaselUI x:Name="MainEasel"/>
             </Frame.Content>
         </Frame>
     </Viewbox>

@@ -9,6 +9,10 @@ namespace KidPix.App
     /// </summary>
     public partial class App : Application
     {
+        public App() : base()
+        {
+            //**CREATE NEW SESSION
+            KidPix.API.AppService.Sessions.KidPixSessionManager.CreateSession(true);
+        }
     }
-
 }

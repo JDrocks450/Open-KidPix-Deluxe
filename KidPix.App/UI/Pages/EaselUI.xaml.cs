@@ -1,4 +1,5 @@
-﻿using KidPix.API.Importer.Graphics;
+﻿using KidPix.API.AppService.Sessions;
+using KidPix.API.Importer.Graphics;
 using KidPix.API.Importer.Mohawk;
 using KidPix.API.Resources;
 using KidPix.App.UI.Util;
@@ -24,17 +25,20 @@ namespace KidPix.App.UI.Pages
     /// </summary>
     public partial class EaselUI : Page
     {
+        //The session this easel will pull data from
+        public KidPixSession MySession { get; }
+
         string[] MyReferencedArchives =
         {
             "Easel.MHK", "Tools\\TP.MHK"
         };
+
         public EaselUI()
         {
-            foreach (var resource in MyReferencedArchives)
-            {
-                MHWKFile easelArchive = MHWKImporter.Import(@"C:\Program Files (x86)\The Learning Company\Kid Pix Deluxe 4\Data\" + resource);
-                KidPixUILibrary.LinkedArchives.Add(easelArchive);
-            }
+            MySession = KidPixSessionManager.ActiveSession;
+            if (MySession == null)
+                throw new NullReferenceException("There is no currently active KidPixSession for this Easel to function off of");
+            KidPixUILibrary.LinkResource(MyReferencedArchives);
 
             InitializeComponent();            
             Loaded += Easel_Loaded;

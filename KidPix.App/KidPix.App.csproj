@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\KidPix.API.AppService\KidPix.API.AppService.csproj" />
     <ProjectReference Include="..\KidPix.API\KidPix.API.csproj" />
   </ItemGroup>
 

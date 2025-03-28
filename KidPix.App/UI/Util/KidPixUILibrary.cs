@@ -14,11 +14,25 @@ namespace KidPix.App.UI.Util
 {
     internal static class KidPixUILibrary
     {
-        public static HashSet<MHWKFile> LinkedArchives { get; } = new();
+        public static Dictionary<string,MHWKFile> LinkedArchives { get; } = new();
+        public static bool LinkResource(params string[] FilePaths)
+        {
+            bool success = true;
+            foreach (var resourceName in FilePaths)
+            {
+                string path = @"C:\Program Files (x86)\The Learning Company\Kid Pix Deluxe 4\Data\" + resourceName;
+                string name = System.IO.Path.GetFileName(path);
+                if (LinkedArchives.ContainsKey(name)) continue;
+                MHWKFile easelArchive = MHWKImporter.Import(path);
+                LinkedArchives.Add(name, easelArchive);
+                success = true;
+            }
+            return success;
+        }
 
         public static async Task<T?> TryImportResourceLinked<T>(MHWKIdentifierToken Token) where T : KidPixResource
         {
-            foreach (var archive in LinkedArchives)
+            foreach (var archive in LinkedArchives.Values)
             {
                 if (!archive.ContainsResourceEntry(Token)) continue;
                 var asset = await archive.TryImportResourceAsync(Token) as T;

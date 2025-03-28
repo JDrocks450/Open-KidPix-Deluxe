@@ -1,4 +1,8 @@
-﻿using System;
+﻿using KidPix.API.AppService.Model;
+using KidPix.API.AppService.Sessions;
+using KidPix.API.AppService.Sessions.Contexts;
+using KidPix.App.UI.Model;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -19,44 +23,38 @@ namespace KidPix.App.UI.Pages.Easel
     /// <summary>
     /// Interaction logic for ToolSubpage.xaml
     /// </summary>
-    public partial class ToolSubpage : Page, INotifyPropertyChanged
+    public partial class ToolSubpage : Page, INotifyPropertyChanged, ITypedVisualObjectChildComponent<EaselUI>
     {
+        private KidPixSession? mySession => _session ?? (_session = ((ITypedVisualObjectChildComponent<EaselUI>)this)?.MyTypedParent?.MySession);
+        private KidPixUIContext? sessionUIState => mySession?.GameplayState?.UIState;
+        
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        public enum UIStates
+        public KidPixUIEnum.EaselToolSubpageUIStates CurrentState
         {
-            //**UI TRAY TYPE 1
-            Pencils,
-            Paints,
-            Fills,
-            Erasers,
-            Mixers,
-            ClippingSelections,
-            //**UI TRAY TYPE 2
-
+            get => (KidPixUIEnum.EaselToolSubpageUIStates)GetValue(CurrentStateProperty);
+            set => SetValue(CurrentStateProperty, value);
         }
-
-        public UIStates CurrentState
-        {
-            get => (UIStates)GetValue(CurrentStateProperty);
-            set
-            {
-                PropertyChanged?.Invoke(this, new(nameof(CurrentTray)));
-                SetValue(CurrentStateProperty, value);
-            }
-        } 
-
-        public int CurrentTray => (int)CurrentState;
-        public static DependencyProperty CurrentStateProperty = DependencyProperty.Register(nameof(CurrentState), typeof(UIStates), typeof(ToolSubpage));
+        public static DependencyProperty CurrentStateProperty = DependencyProperty.Register(nameof(CurrentState), typeof(KidPixUIEnum.EaselToolSubpageUIStates), typeof(ToolSubpage));
+        private KidPixSession? _session;
 
         public ToolSubpage()
         {
             InitializeComponent();
+
+            Loaded += ToolSubpage_Loaded;            
+        }
+
+        private void ToolSubpage_Loaded(object sender, RoutedEventArgs e)
+        {
+            //**ACQUIRE HOOKS TO KidPixSession of the Easel parent
+            if (sessionUIState == null) return; // not good, this component will not work at all            
+            CurrentStateProperty.Bind(this,sessionUIState.ToolSubpageState);
         }
 
         private void FirstSection_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            CurrentState++;
+            sessionUIState.ToolSubpageState.Value++;
         }
     }
 }

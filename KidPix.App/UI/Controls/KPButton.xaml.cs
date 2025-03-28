@@ -63,6 +63,7 @@ namespace KidPix.App.UI.Controls
         private async void KPButton_Loaded(object sender, RoutedEventArgs e)
         {
             //**LOAD ANIMATION FRAMES
+            if (KPBackgroundBrush == null) return;
 
             await KPBackgroundBrush.LoadResources();
             await KPBackgroundBrush.InvalidateBrush();

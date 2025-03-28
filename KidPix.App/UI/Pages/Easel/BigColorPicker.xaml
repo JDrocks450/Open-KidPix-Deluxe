@@ -1,0 +1,21 @@
+﻿<UserControl x:Class="KidPix.App.UI.Pages.Easel.BigColorPicker"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:KidPix.App.UI.Pages.Easel" xmlns:brushes="clr-namespace:KidPix.App.UI.Brushes" xmlns:controls="clr-namespace:KidPix.App.UI.Controls"
+             mc:Ignorable="d" Loaded="BigColorPicker_Loaded"
+             Width="166" Height="236">
+    <UserControl.Resources>
+        <brushes:KPImageBrush x:Key="PickerBackgroundBrush" AssetType="tBMH" AssetID="1500" BMHFrame="0"/>
+        <brushes:KPImageBrush x:Key="PaletteImage" AssetType="tBMH" AssetID="1500" BMHFrame="6"/>
+        <brushes:KPImageBrush x:Key="EyedropperButtonBrushKey" AssetType="tBMH" AssetID="1500" BMHFrame="5"/>
+        <brushes:KPImageBrush x:Key="EyedropperSelectedButtonBrushKey" AssetType="tBMH" AssetID="1500" BMHFrame="5"/>
+        <DoubleAnimation x:Key="BigPickerOpenAnimationKey" Duration="0:0:0.25" To="0" />
+        <DoubleAnimation x:Key="BigPickerCloseAnimationKey" Duration="0:0:0.25" To="-236"/>
+    </UserControl.Resources>
+    <Canvas Background="{Binding BrushReference, Source={StaticResource PickerBackgroundBrush}}">
+        <Border Background="{Binding BrushReference, Source={StaticResource PaletteImage}}" Width="125" Height="163" Canvas.Left="20" Canvas.Top="10"/>
+        <controls:KPButton Background="{Binding BrushReference, Source={StaticResource EyedropperButtonBrushKey}}" Width="43" Height="28" Canvas.Bottom="23" Canvas.Left="65"/>
+    </Canvas>
+</UserControl>

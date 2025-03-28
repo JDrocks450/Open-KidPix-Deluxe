@@ -124,7 +124,7 @@
             </controls:KPButton>
         </Canvas>
         <Grid Name="PaletteSplooshControl" Grid.Row="4" Width="107" Height="108" HorizontalAlignment="Left" VerticalAlignment="Top" Background="{Binding BrushReference, Source={StaticResource PaletteSplooshControlBrushKey}}">
-            <Border Width="55" Height="55" HorizontalAlignment="Center" VerticalAlignment="Center" Background="{Binding BrushReference, Source={StaticResource PaletteSplashBrushKey}}" Margin="1,0,0,9"/>
+            <Border Name="PaletteSplooshIcon" MouseEnter="PaletteSplooshIcon_MouseEnter" MouseLeave="PaletteSplooshIcon_MouseLeave" Width="56" Height="53" HorizontalAlignment="Center" VerticalAlignment="Center" Background="{Binding BrushReference, Source={StaticResource PaletteSplashBrushKey}}" Margin="1,0,0,9"/>
         </Grid>
     </Grid>
 </Page>

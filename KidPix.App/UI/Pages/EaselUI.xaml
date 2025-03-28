@@ -14,13 +14,14 @@
     <Grid Background="{Binding Source={StaticResource EaselBackgroundBrushKey}, Path=BrushReference}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="130"/>
-            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="670"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Name="ScreenUISafezone" Height="1*"/>
+            <RowDefinition Height="478"/>
             <RowDefinition Height="102"/>
-            <RowDefinition Height="20"/>
+            <RowDefinition Name="OffscreenRule" Height="20"/>
         </Grid.RowDefinitions>
+        <easel:KPCanvas Grid.Column="1"/>
         <Frame Grid.RowSpan="2">
             <Frame.Content>
                 <easel:ToolCupboard/>
@@ -31,5 +32,8 @@
                 <easel:ToolSubpage/>
             </Frame.Content>
         </Frame>
+        <Canvas Grid.RowSpan="2" Grid.ColumnSpan="2" x:Name="OverlaysLayer">
+            <easel:BigColorPicker Canvas.Left="61" Canvas.Bottom="-236" />
+        </Canvas>
     </Grid>
 </Page>
