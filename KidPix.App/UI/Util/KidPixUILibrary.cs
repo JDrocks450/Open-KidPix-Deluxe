@@ -41,16 +41,17 @@ namespace KidPix.App.UI.Util
             return default;
         }
 
-        public static async Task<ImageBrush?> PaintabletoBrush(IPaintable Paintable)
+        public static async Task<ImageBrush?> PaintabletoBrush(IPaintable Paintable, System.Windows.Media.Color? TransparentColor = default)
         {
             using System.Drawing.Bitmap bmp = Paintable.Paint();
-            bmp.MakeTransparent(System.Drawing.Color.Black);
-            var brush = new ImageBrush(bmp.Convert(true));            
+            if (TransparentColor != null)
+                bmp.MakeTransparent(TransparentColor.Value.ToDrawingColor());
+            var brush = new ImageBrush(bmp.Convert(TransparentColor != null));            
             RenderOptions.SetBitmapScalingMode(brush, BitmapScalingMode.NearestNeighbor);
             return brush;
         }
 
-        public static async Task<ImageBrush?> ResourceToBrush(MHWKIdentifierToken Token, int BMHFrame = -1)
+        public static async Task<ImageBrush?> ResourceToBrush(MHWKIdentifierToken Token, int BMHFrame = -1, System.Windows.Media.Color? TransparentColor = default)
         {
             using KidPixResource? asset = await TryImportResourceLinked<KidPixResource>(Token);
             switch (Token.ChunkType)
@@ -66,7 +67,7 @@ namespace KidPix.App.UI.Util
                     }
                     break;
             }
-            return await PaintabletoBrush((IPaintable)asset);
+            return await PaintabletoBrush((IPaintable)asset, TransparentColor);
         }
     }
 }

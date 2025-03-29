@@ -118,6 +118,7 @@ namespace KidPix.App.UI.Brushes
                 DoLazyLoadInvalidate();
             }
         }
+        public Color? TransparentColor { get; set; } = default;
 
         protected void DoLazyLoadInvalidate()
         {
@@ -131,10 +132,7 @@ namespace KidPix.App.UI.Brushes
             });
         }
 
-        protected static async Task<ImageSource?> LoadFromLibrary(MHWKIdentifierToken Resource, int BMHFrame = -1) => 
-            (await KidPixUILibrary.ResourceToBrush(Resource,BMHFrame))?.ImageSource;
-
-        public override async Task LoadResources() => myResource = await LoadFromLibrary(new(AssetType, AssetID), BMHFrame);
+        public override async Task LoadResources() => myResource = (await KidPixUILibrary.ResourceToBrush(new(AssetType, AssetID), BMHFrame, TransparentColor))?.ImageSource;
 
         public override async Task InvalidateBrush()
         {
@@ -240,7 +238,7 @@ namespace KidPix.App.UI.Brushes
             _animationFrames.Clear();
             foreach (int FrameID in AnimationFrames)
             {
-                var img = await LoadFromLibrary(new API.MHWKIdentifierToken(AssetType, AssetID), FrameID);
+                var img = (await KidPixUILibrary.ResourceToBrush(new API.MHWKIdentifierToken(AssetType, AssetID), FrameID, TransparentColor))?.ImageSource;
                 if (img == null) throw new NullReferenceException(nameof(img));
                 _animationFrames.Add(img);
             }

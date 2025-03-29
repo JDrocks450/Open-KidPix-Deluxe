@@ -76,22 +76,22 @@
                 </Canvas.Style>
                 <controls:KPButton x:Name="PencilButton" Width="50" Height="50" Canvas.Left="20" Canvas.Top="10" ScaleFactor="1.25" ShouldAnimationAutoSize="True">
                     <controls:KPButton.KPBackgroundBrush>
-                        <brushes:KPAnimatedImageBrush AssetType="tBMH" AssetID="18000" BMHFrame="14" Range="12..16" AnimationMode="PlayOnce" RepeatAmount="1"/>
+                        <brushes:KPAnimatedImageBrush AssetType="tBMH" AssetID="18000" BMHFrame="14" Range="12..16" AnimationMode="PlayOnce" RepeatAmount="1" TransparentColor="Black"/>
                     </controls:KPButton.KPBackgroundBrush>
                 </controls:KPButton>
                 <controls:KPButton x:Name="ChalkButton" Width="50" Height="50" Canvas.Left="65" Canvas.Top="10" ScaleFactor="1.25">
                     <controls:KPButton.KPBackgroundBrush>
-                        <brushes:KPAnimatedImageBrush AssetType="tBMH" AssetID="18000" BMHFrame="23" Range="21..23" AnimationMode="Boomerang" RepeatAmount="2"/>
+                        <brushes:KPAnimatedImageBrush AssetType="tBMH" AssetID="18000" BMHFrame="23" Range="21..23" AnimationMode="Boomerang" RepeatAmount="2" TransparentColor="Black"/>
                     </controls:KPButton.KPBackgroundBrush>
                 </controls:KPButton>
                 <controls:KPButton x:Name="CrayonButton" Width="50" Height="50" Canvas.Left="108" Canvas.Top="10" ScaleFactor="1.25">
                     <controls:KPButton.KPBackgroundBrush>
-                        <brushes:KPAnimatedImageBrush AssetType="tBMH" AssetID="18000" BMHFrame="55" Range="55..56" AnimationMode="Boomerang" RepeatAmount="2"/>
+                        <brushes:KPAnimatedImageBrush AssetType="tBMH" AssetID="18000" BMHFrame="55" Range="55..56" AnimationMode="Boomerang" RepeatAmount="2" TransparentColor="Black"/>
                     </controls:KPButton.KPBackgroundBrush>
                 </controls:KPButton>
                 <controls:KPButton x:Name="HighlighterButton" Width="50" Height="50" Canvas.Left="159" Canvas.Top="10" ScaleFactor="1.25">
                     <controls:KPButton.KPBackgroundBrush>
-                        <brushes:KPAnimatedImageBrush AssetType="tBMH" AssetID="18000" BMHFrame="71" Range="71..75" AnimationMode="PlayOnce" RepeatAmount="1"/>
+                        <brushes:KPAnimatedImageBrush AssetType="tBMH" AssetID="18000" BMHFrame="71" Range="71..75" AnimationMode="PlayOnce" RepeatAmount="1" TransparentColor="Black"/>
                     </controls:KPButton.KPBackgroundBrush>
                 </controls:KPButton>
             </Canvas>

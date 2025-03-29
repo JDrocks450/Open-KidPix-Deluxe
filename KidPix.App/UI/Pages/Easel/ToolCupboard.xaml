@@ -9,7 +9,7 @@
       Title="ToolCupboard">
     <Page.Resources>
         <brushes:KPImageBrush x:Key="PaletteSplooshControlBrushKey" AssetType="tBMH" AssetID="1000" BMHFrame="196"/>
-        <brushes:KPImageBrush x:Key="PaletteSplashBrushKey" AssetType="tBMP" AssetID="7002"/>
+        <brushes:KPImageBrush x:Key="PaletteSplashBrushKey" AssetType="tBMP" AssetID="7002" TransparentColor="Black"/>
     </Page.Resources>
 
     <Grid>
@@ -119,7 +119,7 @@
         <Canvas Grid.Row="2">
             <controls:KPButton x:Name="UndoButton" Width="50" Height="50" Canvas.Left="75" Canvas.Top="16" ScaleFactor="1.25">
                 <controls:KPButton.KPBackgroundBrush>
-                    <brushes:KPAnimatedImageBrush AssetType="tBMH" AssetID="1000" BMHFrame="155" Range="121..173" AnimationMode="Boomerang"/>
+                    <brushes:KPAnimatedImageBrush AssetType="tBMH" AssetID="1000" BMHFrame="155" Range="121..173" AnimationMode="Boomerang" TransparentColor="Black"/>
                 </controls:KPButton.KPBackgroundBrush>
             </controls:KPButton>
         </Canvas>

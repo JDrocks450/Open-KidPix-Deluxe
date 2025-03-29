@@ -33,5 +33,12 @@ namespace KidPix.App
         /// <returns></returns>
         public static System.Windows.Media.Color ToMediaColor(this System.Drawing.Color DrawingColor) =>
             System.Windows.Media.Color.FromArgb(DrawingColor.A, DrawingColor.R, DrawingColor.G, DrawingColor.B);
+        /// <summary>
+        /// Simple conversion from Drawing <see cref="Color"/> to <see cref="System.Windows.Media.Color"/>
+        /// </summary>
+        /// <param name="MediaColor"></param>
+        /// <returns></returns>
+        public static System.Drawing.Color ToDrawingColor(this System.Windows.Media.Color MediaColor) =>
+            System.Drawing.Color.FromArgb(MediaColor.A, MediaColor.R, MediaColor.G, MediaColor.B);
     }
 }

@@ -7,12 +7,12 @@
              mc:Ignorable="d" Loaded="BigColorPicker_Loaded"
              Width="166" Height="236" MouseLeftButtonUp="UserControl_MouseLeftButtonUp">
     <UserControl.Resources>
-        <brushes:KPImageBrush x:Key="PickerBackgroundBrush" AssetType="tBMH" AssetID="1500" BMHFrame="0"/>
-        <brushes:KPImageBrush x:Key="PaletteImage" AssetType="tBMH" AssetID="1500" BMHFrame="6"/>
-        <brushes:KPImageBrush x:Key="EyedropperButtonBrushKey" AssetType="tBMH" AssetID="1500" BMHFrame="5"/>
-        <brushes:KPImageBrush x:Key="EyedropperSelectedButtonBrushKey" AssetType="tBMH" AssetID="1500" BMHFrame="5"/>
-        <DoubleAnimation x:Key="BigPickerOpenAnimationKey" Duration="0:0:0.25" To="0" />
-        <DoubleAnimation x:Key="BigPickerCloseAnimationKey" Duration="0:0:0.25" To="-236"/>
+        <brushes:KPImageBrush x:Key="PickerBackgroundBrush" AssetType="tBMH" AssetID="1500" BMHFrame="0" TransparentColor="Black"/>
+        <brushes:KPImageBrush x:Key="PaletteImage" AssetType="tBMH" AssetID="1500" BMHFrame="6" TransparentColor="Black"/>
+        <brushes:KPImageBrush x:Key="EyedropperButtonBrushKey" AssetType="tBMH" AssetID="1500" BMHFrame="5" TransparentColor="Black"/>
+        <brushes:KPImageBrush x:Key="EyedropperSelectedButtonBrushKey" AssetType="tBMH" AssetID="1500" BMHFrame="5" TransparentColor="Black"/>
+        <DoubleAnimation x:Key="BigPickerOpenAnimationKey" Duration="0:0:0.20" To="0" AccelerationRatio=".25" DecelerationRatio=".75"/>
+        <DoubleAnimation x:Key="BigPickerCloseAnimationKey" Duration="0:0:0.20" To="-236" AccelerationRatio=".25" DecelerationRatio=".75"/>
     </UserControl.Resources>
     <Canvas Background="{Binding BrushReference, Source={StaticResource PickerBackgroundBrush}}">
         <Border x:Name="PaletteImageControl" Background="{Binding BrushReference, Source={StaticResource PaletteImage}}" Width="125" Height="163" Canvas.Left="20" Canvas.Top="10"/>
