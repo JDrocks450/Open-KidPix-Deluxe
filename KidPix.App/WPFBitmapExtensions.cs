@@ -25,5 +25,13 @@ namespace KidPix.App
             image.EndInit();
             return image;
         }
+
+        /// <summary>
+        /// Simple conversion from Drawing <see cref="Color"/> to <see cref="System.Windows.Media.Color"/>
+        /// </summary>
+        /// <param name="DrawingColor"></param>
+        /// <returns></returns>
+        public static System.Windows.Media.Color ToMediaColor(this System.Drawing.Color DrawingColor) =>
+            System.Windows.Media.Color.FromArgb(DrawingColor.A, DrawingColor.R, DrawingColor.G, DrawingColor.B);
     }
 }

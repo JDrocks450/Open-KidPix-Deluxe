@@ -1,4 +1,5 @@
 ﻿using KidPix.API.AppService.Sessions;
+using KidPix.API.Importer.Graphics;
 using KidPix.App.UI.Model;
 using KidPix.App.UI.Util;
 using System;
@@ -27,6 +28,7 @@ namespace KidPix.App.UI.Pages.Easel
     {
         private KidPixSession? _session;
         private KidPixSession? mySession => _session ?? (_session = ((ITypedVisualObjectChildComponent<EaselUI>)this)?.MyTypedParent?.MySession);
+        private System.Drawing.Bitmap _paletteBitmap;
 
         public BigColorPicker()
         {
@@ -35,9 +37,17 @@ namespace KidPix.App.UI.Pages.Easel
             InitializeComponent();
         }
 
-        private void BigColorPicker_Loaded(object sender, RoutedEventArgs e)
+        private async void BigColorPicker_Loaded(object sender, RoutedEventArgs e)
         {
             mySession.GameplayState.UIState.BigPickerOpened.ValueChanged += PropertyChanged;
+
+            //*load palette bmp
+            API.Importer.Mohawk.CHUNK_TYPE AssetType = API.Importer.Mohawk.CHUNK_TYPE.tBMH;
+            ushort AssetID = 1500;
+            int BMHFrame = 6;
+            using BMHResource? bmh = await KidPixUILibrary.TryImportResourceLinked<BMHResource>(new(AssetType, AssetID));
+            bmh.SetCurrentResource(BMHFrame);
+            _paletteBitmap = bmh.Paint();
         }
 
         private void PropertyChanged(API.AppService.Model.KidPixDependecyObject Parent, API.AppService.Model.IKidPixDependencyProperty Property)
@@ -46,13 +56,17 @@ namespace KidPix.App.UI.Pages.Easel
             else Close();
         }
 
-        void Open()
+        private void UserControl_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            BeginAnimation(Canvas.BottomProperty, (DoubleAnimation)FindResource("BigPickerOpenAnimationKey"));
+            mySession.GameplayState.UIState.BigPickerOpened.Value = false; // close as the user could be trying to dismiss the control
+            if (_paletteBitmap == null) return;
+            if (!PaletteImageControl.IsMouseOver) return;
+            Point mousePos = Mouse.GetPosition(PaletteImageControl);
+            System.Drawing.Color selectedColor = _paletteBitmap.GetPixel((int)mousePos.X % _paletteBitmap.Width, (int)mousePos.Y % _paletteBitmap.Height);
+            mySession.GameplayState.SelectedPrimaryColor.Value = selectedColor;
         }
-        void Close()
-        {
-            BeginAnimation(Canvas.BottomProperty, (DoubleAnimation)FindResource("BigPickerCloseAnimationKey"));
-        }
+
+        void Open() => BeginAnimation(Canvas.BottomProperty, (DoubleAnimation)FindResource("BigPickerOpenAnimationKey"));
+        void Close() => BeginAnimation(Canvas.BottomProperty, (DoubleAnimation)FindResource("BigPickerCloseAnimationKey"));
     }
 }

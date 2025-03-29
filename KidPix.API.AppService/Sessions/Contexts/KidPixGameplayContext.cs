@@ -1,5 +1,6 @@
 ﻿using KidPix.API.AppService.Model;
 using KidPix.API.AppService.Render;
+using System.Drawing;
 
 namespace KidPix.API.AppService.Sessions.Contexts
 {
@@ -18,5 +19,9 @@ namespace KidPix.API.AppService.Sessions.Contexts
         /// The image that this session allows the User to play with
         /// </summary>
         public KidPixArtCanvas ArtCanvas { get; } = new();
+        /// <summary>
+        /// The currently selected Primary Color for use when drawing/painting
+        /// </summary>
+        public KidPixDependencyProperty<Color> SelectedPrimaryColor { get; } = RegisterProperty(Color.LightGreen);
     }
 }

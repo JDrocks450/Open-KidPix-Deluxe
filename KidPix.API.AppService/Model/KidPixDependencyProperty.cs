@@ -63,6 +63,8 @@
             remove => this.ValueChanged -= value;
         }
 
+        public static implicit operator T(KidPixDependencyProperty<T> Object) => Object.Value;
+
         public void SetTypeInfo(KidPixDependecyObject Parent, string PropertyName)
         {
             if (parent != null) throw new InvalidOperationException("Do not call SetTypeInfo() in your code.");

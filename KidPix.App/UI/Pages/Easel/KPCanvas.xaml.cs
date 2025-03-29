@@ -32,6 +32,8 @@ namespace KidPix.App.UI.Pages.Easel
 
         private KidPixSession? mySession => _session ?? (_session = ((ITypedVisualObjectChildComponent<EaselUI>)this)?.MyTypedParent?.MySession);
         private KidPixArtCanvas myCanvas;
+        //disables the user polling routine ... disabled when no tool is selected
+        private bool disabled = true;
 
         public KPCanvas()
         {
@@ -47,8 +49,36 @@ namespace KidPix.App.UI.Pages.Easel
 
         private void KPCanvas_Loaded(object sender, RoutedEventArgs e)
         {
+            //**HOOK the canvas for this session
             myCanvas = mySession.GameplayState.ArtCanvas;
+
+            //Create data bindings
+            mySession.GameplayState.SelectedPrimaryColor.ValueChanged += SelectedColorChanged;
+            Shape.FillProperty.BindKPtoWPFOneWay(UserSelectionCursor, //Create data binding between selection cursor to primary color
+                mySession.GameplayState.SelectedPrimaryColor, (System.Drawing.Color dColor) => new SolidColorBrush(dColor.ToMediaColor())); 
+
+            //**HOOK events and variables on the canvas
+            myCanvas.SelectedTool.ValueChanged += OnToolChanged;            
+            myCanvas.SelectedTool.Value = new KidPixPencilToolBrush(mySession.GameplayState.SelectedPrimaryColor, 5);            
+            
             DisplayArtCanvas();
+        }
+
+        private void SelectedColorChanged(API.AppService.Model.KidPixDependecyObject Parent, API.AppService.Model.IKidPixDependencyProperty Property)
+        {
+            myCanvas.SelectedTool.Value.PrimaryColor = mySession.GameplayState.SelectedPrimaryColor;            
+        }
+
+        private void OnToolChanged(API.AppService.Model.KidPixDependecyObject Parent, API.AppService.Model.IKidPixDependencyProperty Property)
+        {
+            disabled = true;
+            UserSelectionCursor.Visibility = Visibility.Hidden;
+            if (myCanvas.SelectedTool.Value == null) return; // no brush! hide the selection cursor...
+            disabled = false;
+            KidPixCanvasBrush myBrush = myCanvas.SelectedTool.Value;
+            UserSelectionCursor.Visibility = Visibility.Visible;
+            UserSelectionCursor.Width = myBrush.Radius * 2;
+            UserSelectionCursor.Height = myBrush.Radius * 2;
         }
 
         private void DisplayArtCanvas()
@@ -90,13 +120,15 @@ namespace KidPix.App.UI.Pages.Easel
         private void UpdateFrame()
         {
             var mousePos = Mouse.GetPosition(this);
-            var pos = mousePos - new Point(20/2,20/2);
+            var pos = mousePos - new Point(UserSelectionCursor.Width/2,UserSelectionCursor.Height/2);
             SetLeft(UserSelectionCursor, pos.X);
             SetTop(UserSelectionCursor, pos.Y);
-            myCanvas.SetBrushCursorPosition((int)pos.X, (int)pos.Y);
-            if (Mouse.LeftButton == MouseButtonState.Pressed)
+            if (Mouse.LeftButton == MouseButtonState.Pressed) // User trying to paint
+                myCanvas.CommitStroke((int)mousePos.X, (int)mousePos.Y); // new paint stroke 
+            if (myCanvas.IsPainting)
             {
-                myCanvas.DrawEllipse(System.Drawing.Color.Green, 10);
+                if (Mouse.LeftButton == MouseButtonState.Released)
+                    myCanvas.StopStroke(); // stop painting lift the brush
                 DisplayArtCanvas();
             }
         }

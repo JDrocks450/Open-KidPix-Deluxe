@@ -26,7 +26,7 @@ namespace KidPix.App.UI.Pages.Easel
 
         private void PaletteSplooshIcon_MouseLeave(object sender, System.Windows.Input.MouseEventArgs e)
         {
-            sessionUIState.BigPickerOpened.Value = false;
+            //sessionUIState.BigPickerOpened.Value = false;
         }
     }
 }
