@@ -46,35 +46,53 @@
                             <Setter Property="Margin" Value="0,0,0,4"/>
                         </Style>
                     </StackPanel.Resources>
-                    <controls:KPButton x:Name="DrawButton" Width="50" Height="50" Margin="10,0,0,4">
+                    <controls:KPButton x:Name="DrawButton" Width="50" Height="50" Margin="10,0,0,4" Click="ToolCupboardItemClicked">
                         <controls:KPButton.KPBackgroundBrush>
                             <brushes:KPAnimatedImageBrush AssetType="tBMH" AssetID="1000" BMHFrame="25" Range="_..4"/>
                         </controls:KPButton.KPBackgroundBrush>
+                        <controls:KPButton.KPSelectedBrush>
+                            <brushes:KPImageBrush AssetType="tBMH" AssetID="1000" BMHFrame="29"/>
+                        </controls:KPButton.KPSelectedBrush>
                     </controls:KPButton>
-                    <controls:KPButton x:Name="PaintButton" Width="50" Height="50"  Margin="9,0,0,4">
+                    <controls:KPButton x:Name="PaintButton" Width="50" Height="50"  Margin="9,0,0,4" Click="ToolCupboardItemClicked">
                         <controls:KPButton.KPBackgroundBrush>
                             <brushes:KPAnimatedImageBrush AssetType="tBMH" AssetID="1000" BMHFrame="30" Range="_..4" AnimationMode="Boomerang"/>
                         </controls:KPButton.KPBackgroundBrush>
+                        <controls:KPButton.KPSelectedBrush>
+                            <brushes:KPImageBrush AssetType="tBMH" AssetID="1000" BMHFrame="35"/>
+                        </controls:KPButton.KPSelectedBrush>
                     </controls:KPButton>
-                    <controls:KPButton x:Name="StickersButton" Width="50" Height="50" Margin="5,0,0,4">
+                    <controls:KPButton x:Name="StickersButton" Width="50" Height="50" Margin="5,0,0,4" Click="ToolCupboardItemClicked">
                         <controls:KPButton.KPBackgroundBrush>
                             <brushes:KPAnimatedImageBrush  AssetType="tBMH" AssetID="1000" BMHFrame="5" Range="_..4"/>
                         </controls:KPButton.KPBackgroundBrush>
+                        <controls:KPButton.KPSelectedBrush>
+                            <brushes:KPImageBrush AssetType="tBMH" AssetID="1000" BMHFrame="9"/>
+                        </controls:KPButton.KPSelectedBrush>
                     </controls:KPButton>
-                    <controls:KPButton x:Name="MixersButton" Width="50" Height="50"  Margin="5,0,0,4">
+                    <controls:KPButton x:Name="MixersButton" Width="50" Height="50"  Margin="5,0,0,4" Click="ToolCupboardItemClicked">
                         <controls:KPButton.KPBackgroundBrush>
                             <brushes:KPAnimatedImageBrush AssetType="tBMH" AssetID="1000" BMHFrame="42" Range="_..4"/>
                         </controls:KPButton.KPBackgroundBrush>
+                        <controls:KPButton.KPSelectedBrush>
+                            <brushes:KPImageBrush AssetType="tBMH" AssetID="1000" BMHFrame="47"/>
+                        </controls:KPButton.KPSelectedBrush>
                     </controls:KPButton>
-                    <controls:KPButton x:Name="AudioButton" Width="50" Height="50" Margin="5,0,0,4">
+                    <controls:KPButton x:Name="AudioButton" Width="50" Height="50" Margin="5,0,0,4" Click="ToolCupboardItemClicked">
                         <controls:KPButton.KPBackgroundBrush>
                             <brushes:KPAnimatedImageBrush AssetType="tBMH" AssetID="1000" BMHFrame="19" Range="_..4"/>
                         </controls:KPButton.KPBackgroundBrush>
+                        <controls:KPButton.KPSelectedBrush>
+                            <brushes:KPImageBrush AssetType="tBMH" AssetID="1000" BMHFrame="24"/>
+                        </controls:KPButton.KPSelectedBrush>
                     </controls:KPButton>
-                    <controls:KPButton x:Name="SelectionButton" Width="50" Height="50"  Margin="4,0,0,4">
+                    <controls:KPButton x:Name="SelectionButton" Width="50" Height="50"  Margin="4,0,0,4" Click="ToolCupboardItemClicked">
                         <controls:KPButton.KPBackgroundBrush>
                             <brushes:KPAnimatedImageBrush AssetType="tBMH" AssetID="1000" BMHFrame="58" Range="_..4"/>
                         </controls:KPButton.KPBackgroundBrush>
+                        <controls:KPButton.KPSelectedBrush>
+                            <brushes:KPImageBrush AssetType="tBMH" AssetID="1000" BMHFrame="63"/>
+                        </controls:KPButton.KPSelectedBrush>
                     </controls:KPButton>
                 </StackPanel>
                 <StackPanel Grid.Column="1">
@@ -83,35 +101,53 @@
                             <Setter Property="Margin" Value="0,0,0,4"/>
                         </Style>
                     </StackPanel.Resources>
-                    <controls:KPButton x:Name="ABCButton" Width="50" Height="50"  Margin="-3,0,0,4">
+                    <controls:KPButton x:Name="ABCButton" Width="50" Height="50"  Margin="-3,0,0,4" Click="ToolCupboardItemClicked">
                         <controls:KPButton.KPBackgroundBrush>
                             <brushes:KPAnimatedImageBrush AssetType="tBMH" AssetID="1000" BMHFrame="53" Range="_..4"/>
                         </controls:KPButton.KPBackgroundBrush>
+                        <controls:KPButton.KPSelectedBrush>
+                            <brushes:KPImageBrush AssetType="tBMH" AssetID="1000" BMHFrame="57"/>
+                        </controls:KPButton.KPSelectedBrush>
                     </controls:KPButton>
-                    <controls:KPButton x:Name="FillButton" Width="50" Height="50"  Margin="-4,0,0,4">
+                    <controls:KPButton x:Name="FillButton" Width="50" Height="50"  Margin="-4,0,0,4" Click="ToolCupboardItemClicked">
                         <controls:KPButton.KPBackgroundBrush>
                             <brushes:KPAnimatedImageBrush AssetType="tBMH" AssetID="1000" BMHFrame="36" Range="_..4"/>
                         </controls:KPButton.KPBackgroundBrush>
+                        <controls:KPButton.KPSelectedBrush>
+                            <brushes:KPImageBrush AssetType="tBMH" AssetID="1000" BMHFrame="41"/>
+                        </controls:KPButton.KPSelectedBrush>
                     </controls:KPButton>
-                    <controls:KPButton x:Name="StampsButton" Width="50" Height="50"  Margin="1,0,0,4">
+                    <controls:KPButton x:Name="StampsButton" Width="50" Height="50"  Margin="1,0,0,4" Click="ToolCupboardItemClicked">
                         <controls:KPButton.KPBackgroundBrush>
                             <brushes:KPAnimatedImageBrush AssetType="tBMH" AssetID="1000" BMHFrame="48" Range="_..4"/>
                         </controls:KPButton.KPBackgroundBrush>
+                        <controls:KPButton.KPSelectedBrush>
+                            <brushes:KPImageBrush AssetType="tBMH" AssetID="1000" BMHFrame="52"/>
+                        </controls:KPButton.KPSelectedBrush>
                     </controls:KPButton>
-                    <controls:KPButton x:Name="BackgroundsButton" Width="50" Height="50"  Margin="-5,5,0,5">
+                    <controls:KPButton x:Name="BackgroundsButton" Width="50" Height="50"  Margin="-5,5,0,5" Click="ToolCupboardItemClicked">
                         <controls:KPButton.KPBackgroundBrush>
                             <brushes:KPAnimatedImageBrush AssetType="tBMH" AssetID="1000" BMHFrame="0" Range="_..4"/>
                         </controls:KPButton.KPBackgroundBrush>
+                        <controls:KPButton.KPSelectedBrush>
+                            <brushes:KPImageBrush AssetType="tBMH" AssetID="1000" BMHFrame="4"/>
+                        </controls:KPButton.KPSelectedBrush>
                     </controls:KPButton>
-                    <controls:KPButton x:Name="AnimationsButton" Width="50" Height="50" Margin="-3,5,0,5" ShouldAnimationAutoSize="True">
+                    <controls:KPButton x:Name="AnimationsButton" Width="50" Height="50" Margin="-3,5,0,5" ShouldAnimationAutoSize="True" Click="ToolCupboardItemClicked">
                         <controls:KPButton.KPBackgroundBrush>
                             <brushes:KPAnimatedImageBrush AssetType="tBMH" AssetID="1000" BMHFrame="10" Range="_..4" AnimationMode="Boomerang"/>
                         </controls:KPButton.KPBackgroundBrush>
+                        <controls:KPButton.KPSelectedBrush>
+                            <brushes:KPImageBrush AssetType="tBMH" AssetID="1000" BMHFrame="14"/>
+                        </controls:KPButton.KPSelectedBrush>
                     </controls:KPButton>
-                    <controls:KPButton x:Name="EraserButton" Width="50" Height="50"  Margin="-3,10,0,5">
+                    <controls:KPButton x:Name="EraserButton" Width="50" Height="50"  Margin="-3,10,0,5" Click="ToolCupboardItemClicked">
                         <controls:KPButton.KPBackgroundBrush>
                             <brushes:KPAnimatedImageBrush AssetType="tBMH" AssetID="1000" BMHFrame="64" Range="_..4" AnimationMode="Boomerang"/>
                         </controls:KPButton.KPBackgroundBrush>
+                        <controls:KPButton.KPSelectedBrush>
+                            <brushes:KPImageBrush AssetType="tBMH" AssetID="1000" BMHFrame="69"/>
+                        </controls:KPButton.KPSelectedBrush>
                     </controls:KPButton>
                 </StackPanel>
             </Grid>

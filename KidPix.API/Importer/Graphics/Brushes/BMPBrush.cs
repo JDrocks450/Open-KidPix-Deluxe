@@ -1,6 +1,8 @@
 ﻿using System.Drawing.Imaging;
 using System.Drawing;
 using System.Runtime.InteropServices;
+using KidPix.API.Util;
+using KidPix.API.Common;
 
 namespace KidPix.API.Importer.Graphics.Brushes
 {
@@ -25,16 +27,10 @@ namespace KidPix.API.Importer.Graphics.Brushes
             Bytes.ReadExactly(array);
             return Plaster(Header, array);
         }
+        public static Bitmap? Plaster(BMPHeader Header, byte[] RawData, Color CustomPaletteColor, GraphicsExtensions.Opaqueness Opacity, bool ShouldFlipEndian = true) => 
+            Plaster(Header, RawData, GraphicsExtensions.MakePaletteFromPrimaryColor(Opacity, CustomPaletteColor), ShouldFlipEndian);
         public static Bitmap? Plaster(BMPHeader Header, byte[] RawData, ColorPalette? CustomPalette = null, bool ShouldFlipEndian = true)
-        {
-            if(Header.BitsPerPixel == 8)
-            {
-                Color[] arr = new Color[256];
-                for (int i = 0; i < 256; i++)
-                    arr[i] = Color.FromArgb(i, i, i);
-                CustomPalette = new(arr);
-            }
-
+        {            
             PixelFormat Format = Header.BitDepthDescription switch
             {
                 BitmapFormat.kBitsPerPixel16 => PixelFormat.Format16bppRgb555,
@@ -57,11 +53,11 @@ namespace KidPix.API.Importer.Graphics.Brushes
             Marshal.Copy(RawData, 0, pNative, expectedSize);
             bmp.UnlockBits(bmpData);
 
-            if (CustomPalette != null)
-                bmp.Palette = CustomPalette;
+            if (Header.BitsPerPixel == 8)
+                bmp.Palette = CustomPalette ?? GraphicsExtensions.MakeGreyscalePaletteSemiOpaque(); // set to greyscale if no other palette is set. The default palette is very buggy looking and is disruptive
 
             return bmp;
-        }
+        }        
 
         private static void FlipEndian(ref byte[] RawData)
         {

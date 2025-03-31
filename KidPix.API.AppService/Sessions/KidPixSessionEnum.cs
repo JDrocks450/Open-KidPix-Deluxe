@@ -43,6 +43,12 @@ namespace KidPix.API.AppService.Sessions
             Mixers,
             ClippingSelections,
             //**UI TRAY TYPE 2
+            Backgrounds, 
+            Audios,
+            Text,
+            Animations,
+            Stamps,
+            Stickers
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using KidPix.API;
 using KidPix.API.Directory;
 using KidPix.API.Importer;
+using KidPix.API.Importer.Graphics;
 using KidPix.API.Importer.kINI;
 using KidPix.API.Importer.Mohawk;
 using KidPix.API.Importer.tBMP.Decompressor;
@@ -118,7 +119,7 @@ namespace KidPix.ResourceExplorer.Pages.ResourceExplorer
             catch(Exception e)
             {
                 MessageBox.Show(e.Message);
-                return;
+                kpResource = new GenericKidPixResource(Entry, new MemoryStream(await CurrentFile.ReadResourceDataAsync(Entry)));
             }    
             if (kpResource != null)
                 ResourcePreview.AttachResource(kpResource);        

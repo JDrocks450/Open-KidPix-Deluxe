@@ -1,6 +1,8 @@
 ﻿using KidPix.API.AppService.Render;
+using KidPix.API.AppService.Render.CanvasBrushes;
 using KidPix.API.AppService.Sessions;
 using KidPix.App.UI.Model;
+using KidPix.App.UI.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,6 +39,8 @@ namespace KidPix.App.UI.Pages.Easel
 
         public KPCanvas()
         {
+            //Ensure brushes are linked before execution of this control
+            KidPixUILibrary.LinkResource("Tools\\Brushes.MHK"); 
             InitializeComponent();
 
             Loaded += KPCanvas_Loaded;
@@ -58,18 +62,18 @@ namespace KidPix.App.UI.Pages.Easel
                 mySession.GameplayState.SelectedPrimaryColor, (System.Drawing.Color dColor) => new SolidColorBrush(dColor.ToMediaColor())); 
 
             //**HOOK events and variables on the canvas
-            myCanvas.SelectedTool.ValueChanged += OnToolChanged;            
-            myCanvas.SelectedTool.Value = new KidPixPencilToolBrush(mySession.GameplayState.SelectedPrimaryColor, 5);            
+            mySession.GameplayState.SelectedCanvasBrush.ValueChanged += OnToolChanged;
+            mySession.GameplayState.SelectedCanvasBrush.Value = KidPixCanvasBrushes.Pencil(mySession.GameplayState.SelectedPrimaryColor, 5);            
             
             DisplayArtCanvas();
         }
 
-        private void SelectedColorChanged(API.AppService.Model.KidPixDependecyObject Parent, API.AppService.Model.IKidPixDependencyProperty Property)
+        private void SelectedColorChanged(API.AppService.Model.KidPixDependencyObject Parent, API.AppService.Model.IKidPixDependencyProperty Property)
         {
-            myCanvas.SelectedTool.Value.PrimaryColor = mySession.GameplayState.SelectedPrimaryColor;            
+            mySession.GameplayState.SelectedCanvasBrush.Value.PrimaryColor = mySession.GameplayState.SelectedPrimaryColor;            
         }
 
-        private void OnToolChanged(API.AppService.Model.KidPixDependecyObject Parent, API.AppService.Model.IKidPixDependencyProperty Property)
+        private void OnToolChanged(API.AppService.Model.KidPixDependencyObject Parent, API.AppService.Model.IKidPixDependencyProperty Property)
         {
             disabled = true;
             UserSelectionCursor.Visibility = Visibility.Hidden;

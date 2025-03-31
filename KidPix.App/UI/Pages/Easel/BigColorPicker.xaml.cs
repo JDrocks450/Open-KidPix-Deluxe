@@ -50,7 +50,7 @@ namespace KidPix.App.UI.Pages.Easel
             _paletteBitmap = bmh.Paint();
         }
 
-        private void PropertyChanged(API.AppService.Model.KidPixDependecyObject Parent, API.AppService.Model.IKidPixDependencyProperty Property)
+        private void PropertyChanged(API.AppService.Model.KidPixDependencyObject Parent, API.AppService.Model.IKidPixDependencyProperty Property)
         {
             if (mySession.GameplayState.UIState.BigPickerOpened.Value) Open();
             else Close();

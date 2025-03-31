@@ -13,6 +13,7 @@
     <None Remove="Assets\Img\JPSmall.png" />
     <None Remove="Assets\Img\KP.png" />
     <None Remove="Assets\Img\pageIcon.png" />
+    <None Remove="Assets\Img\transparent.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -36,6 +37,7 @@
     <Resource Include="Assets\Img\JPSmall.png" />
     <Resource Include="Assets\Img\KP.png" />
     <Resource Include="Assets\Img\pageIcon.png" />
+    <Resource Include="Assets\Img\transparent.png" />
   </ItemGroup>
 
 </Project>

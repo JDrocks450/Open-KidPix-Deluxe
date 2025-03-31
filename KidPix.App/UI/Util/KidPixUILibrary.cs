@@ -1,4 +1,5 @@
 ﻿using KidPix.API;
+using KidPix.API.AppService.Render.CanvasBrushes;
 using KidPix.API.Importer;
 using KidPix.API.Importer.Graphics;
 using KidPix.API.Importer.Mohawk;
@@ -12,6 +13,13 @@ using System.Windows.Media;
 
 namespace KidPix.App.UI.Util
 {
+    internal class KidPixLibraryDrawingDescriptor
+    {
+        public System.Windows.Media.Color? TransparentColor { get; set; }
+        public System.Windows.Media.Color PrimaryColor { get; set; }
+        public KidPix.API.Common.GraphicsExtensions.Opaqueness Opacity { get; set; }
+    }
+
     internal static class KidPixUILibrary
     {
         public static Dictionary<string,MHWKFile> LinkedArchives { get; } = new();
@@ -44,14 +52,14 @@ namespace KidPix.App.UI.Util
         public static async Task<ImageBrush?> PaintabletoBrush(IPaintable Paintable, System.Windows.Media.Color? TransparentColor = default)
         {
             using System.Drawing.Bitmap bmp = Paintable.Paint();
-            if (TransparentColor != null)
+            if (TransparentColor != null && bmp.PixelFormat != System.Drawing.Imaging.PixelFormat.Format8bppIndexed)
                 bmp.MakeTransparent(TransparentColor.Value.ToDrawingColor());
-            var brush = new ImageBrush(bmp.Convert(TransparentColor != null));            
+            var brush = new ImageBrush(bmp.Convert(TransparentColor != null));
             RenderOptions.SetBitmapScalingMode(brush, BitmapScalingMode.NearestNeighbor);
             return brush;
         }
 
-        public static async Task<ImageBrush?> ResourceToBrush(MHWKIdentifierToken Token, int BMHFrame = -1, System.Windows.Media.Color? TransparentColor = default)
+        public static async Task<ImageBrush?> ResourceToBrush(MHWKIdentifierToken Token, int BMHFrame = -1, KidPixLibraryDrawingDescriptor? Descriptor = default)
         {
             using KidPixResource? asset = await TryImportResourceLinked<KidPixResource>(Token);
             switch (Token.ChunkType)
@@ -67,7 +75,44 @@ namespace KidPix.App.UI.Util
                     }
                     break;
             }
-            return await PaintabletoBrush((IPaintable)asset, TransparentColor);
+            if (asset as IPaintable == null) return null;
+            if (Descriptor.PrimaryColor != default)
+                ((IPaintable)asset).SetPaletteToPrimaryColorPalette(Descriptor.PrimaryColor.ToDrawingColor(), Descriptor.Opacity); 
+            return await PaintabletoBrush((IPaintable)asset, Descriptor.TransparentColor);
+        }
+
+        public enum KPUtilBrushes
+        {
+            Pencil,
+            Chalk,
+            Crayon,
+            Highlighter,
+            Marker,
+
+        }
+
+        public static async Task<KidPixCanvasBrush?> CreateBrush(KPUtilBrushes CreateBrush, System.Drawing.Color PrimaryColor, double Radius)
+        {
+            async Task<KidPixImageCanvasBrush?> getImageBrush(ushort AssetID, CHUNK_TYPE AssetType = CHUNK_TYPE.tBMP)
+            {
+                IPaintable? brushRaster = await TryImportResourceLinked<BMPResource>(new MHWKIdentifierToken(AssetType, AssetID));
+                if (brushRaster == null) return null;
+                System.Drawing.Bitmap brushImage = brushRaster.Paint();
+                return KidPixCanvasBrushes.ImagePaintBrush(CreateBrush.ToString(), brushImage, PrimaryColor, Radius);
+            }
+
+            switch (CreateBrush)
+            {
+                case KPUtilBrushes.Pencil: return KidPixCanvasBrushes.Pencil(PrimaryColor, Radius);
+                case KPUtilBrushes.Chalk:
+                    var brush = await getImageBrush(3510);
+                    brush.Opacity = .05;
+                    return brush;
+                case KPUtilBrushes.Crayon: return await getImageBrush(3510);
+                case KPUtilBrushes.Highlighter: return await getImageBrush(1012);
+                case KPUtilBrushes.Marker: return await getImageBrush(1007);
+            }
+            return null;
         }
     }
 }

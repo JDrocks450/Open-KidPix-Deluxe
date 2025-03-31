@@ -10,17 +10,26 @@ namespace KidPix.API.AppService.Model
     /// <summary>
     /// Base class for objects that want to expose their properties to events when they change value
     /// </summary>
-    public abstract class KidPixDependecyObject
+    public abstract class KidPixDependencyObject
     {
-        public delegate void ObjectValueChangedEventHandler(KidPixDependecyObject Owner, string PropertyName, object? NewValue);
+        public delegate void ObjectValueChangedEventHandler(KidPixDependencyObject Owner, string PropertyName, object? NewValue);
         /// <summary>
         /// Occurs whenever any property on this object has been updated to a new value
         /// </summary>
         public event ObjectValueChangedEventHandler ObjectValueChanged;
-
+        /// <summary>
+        /// Creates a new <see cref="KidPixDependencyProperty{T}"/> optionally with a default value
+        /// <para/>Please note: Processing is done in the <see cref="KidPixDependencyObject"/> constructor to setup runtime metadata for the 
+        /// property and this constructor should never be omitted from your code or else weird bugs can happen with tracking dependency property owners
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="InitValue"></param>
+        /// <returns></returns>
         protected static KidPixDependencyProperty<T> RegisterProperty<T>(T InitValue = default) => new KidPixDependencyProperty<T>(InitValue);
+        protected static KidPixDependencyProperty<T> RegisterProperty<T>(KidPixDependencyProperty<T>.OnValueChangedCallback OnValueChangedCallback, 
+            T InitValue = default) => new KidPixDependencyProperty<T>(InitValue, OnValueChangedCallback);        
 
-        protected KidPixDependecyObject()
+        protected KidPixDependencyObject()
         {
             RegisterInternal();
         }

@@ -30,7 +30,7 @@ namespace KidPix.App.UI.Pages
 
         string[] MyReferencedArchives =
         {
-            "Easel.MHK", "Tools\\TP.MHK"
+            "Easel.MHK", "Tools\\TP.MHK", "Tools\\Icons.MHK"
         };
 
         public EaselUI()

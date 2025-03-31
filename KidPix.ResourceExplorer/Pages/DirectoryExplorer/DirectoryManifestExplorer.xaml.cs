@@ -89,8 +89,10 @@ namespace KidPix.ResourceExplorer.Pages.DirectoryExplorer
                             async () => await ArchiveOpenRequested(_currentManifest.GetFilePath(archiveFile.Key)));
                     }
                     break;
-                case ViewMode.Types:                    
-                    foreach (var typeGroup in _currentManifest.EntriesByType)
+                case ViewMode.Types:
+                    var typeMap = _currentManifest.EntriesByType;
+                    if (typeMap == default) break;
+                    foreach (var typeGroup in typeMap)
                     {                        
                         AddControl(MHWKTypeDescription.GetTypeName(typeGroup.Key),
                             () => HiveSelected(typeGroup.Value), null);

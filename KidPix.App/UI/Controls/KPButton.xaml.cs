@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -19,39 +20,39 @@ using System.Windows.Shapes;
 
 namespace KidPix.App.UI.Controls
 {    
-    public static class KPGenericControlInterface
-    {
-        public static void AttachBrushBackground(in UIElement Element, KPBrush AttachBrush)
-        {
-
-        }
-    }
-
-    public interface IKPBackgroundBrushable
-    {
-        public KPBrush KPBackgroundBrush { get; set; }
-    }
-
     /// <summary>
     /// Interaction logic for KPButton.xaml
     /// </summary>
-    public partial class KPButton : Button, IKPBackgroundBrushable
+    public partial class KPButton : ToggleButton
     {
-        private double _scaleFactor = 1.0;
-
-        public KPBrush KPBackgroundBrush { get; set; }
+        /// <summary>
+        /// The <see cref="Background"/> of this <see cref="KPButton"/> determined using a <see cref="KPBrush"/>
+        /// </summary>
+        public KPBrush KPBackgroundBrush { get => (KPBrush)GetValue(KPBackgroundBrushProperty); set => SetValue(KPBackgroundBrushProperty, value); }
+        public static readonly DependencyProperty KPBackgroundBrushProperty = DependencyProperty.Register(nameof(KPBackgroundBrush), typeof(KPBrush), typeof(KPButton));
+        /// <summary>
+        /// The brush to display this <see cref="KPButton"/> as when the user has toggled it
+        /// </summary>
+        public KPBrush KPSelectedBrush { get => (KPBrush)GetValue(KPSelectedBrushProperty); set => SetValue(KPSelectedBrushProperty, value); }
+        public static readonly DependencyProperty KPSelectedBrushProperty = DependencyProperty.Register(nameof(KPSelectedBrush), typeof(KPBrush), typeof(KPButton));
 
         public bool ShouldAutoSize { get; set; } = true;
         public bool ShouldAnimationAutoSize { get; set; } = false;
         public double ScaleFactor
         {
-            get => _scaleFactor; 
-            set
-            {
-                _scaleFactor = value;
-                DoAutoSize();
-            }
-        }        
+            get => (double)GetValue(ScaleFactorProperty);
+            set => SetValue(ScaleFactorProperty, value);
+        }
+        public static readonly DependencyProperty ScaleFactorProperty = DependencyProperty.Register(nameof(ScaleFactor), typeof(double), typeof(KPButton), new(1.0, DoAutoSizeCallback));
+
+        private static void DoAutoSizeCallback(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (sender is KPButton button) button.DoAutoSize();
+        }
+        private static void DoOnBrushSetCallback(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (sender is KPButton button) { button.DoAutoSize(); }
+        }
 
         public KPButton()
         {
@@ -78,7 +79,7 @@ namespace KidPix.App.UI.Controls
 
         private void DoAutoSize()
         {            
-            if (Background is ImageBrush imgBrush && ShouldAutoSize)
+            if (Background is ImageBrush imgBrush && imgBrush.ImageSource != null && ShouldAutoSize)
             {
                 Width = imgBrush.ImageSource.Width * ScaleFactor;
                 Height = imgBrush.ImageSource.Height * ScaleFactor;                
@@ -100,6 +101,14 @@ namespace KidPix.App.UI.Controls
         {
             if (KPBackgroundBrush is KPAnimatedImageBrush animBrush)
                 animBrush.Stop();
+        }
+
+        private void HOST_Checked(object sender, RoutedEventArgs e)
+        {
+            if (IsChecked.Value)
+                Background = KPSelectedBrush?.BrushReference ?? KPBackgroundBrush?.BrushReference;
+            else Background = KPBackgroundBrush?.BrushReference;
+            DoAutoSize();
         }
     }
 }

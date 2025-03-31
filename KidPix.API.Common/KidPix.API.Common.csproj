@@ -10,9 +10,4 @@
     <PackageReference Include="System.Drawing.Common" Version="9.0.3" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\KidPix.API.Common\KidPix.API.Common.csproj" />
-    <ProjectReference Include="..\KidPix.API\KidPix.API.csproj" />
-  </ItemGroup>
-
 </Project>

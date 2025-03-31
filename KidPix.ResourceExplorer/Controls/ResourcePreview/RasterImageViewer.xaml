@@ -21,16 +21,22 @@
             </Grid.ColumnDefinitions>
             <DockPanel Name="CollapsablePalettePane">
                 <Viewbox Margin="10">
-                    <Border BorderBrush="Black" Background="White" BorderThickness="1,1,0,0">
-                        <UniformGrid Name="PaletteEntriesGrid" Columns="8" Width="120"/>
+                    <Border BorderBrush="Black" Background="{x:Null}" BorderThickness="1,1,0,0">
+                        <DockPanel>
+                            <UniformGrid DockPanel.Dock="Top" Name="PaletteEntriesGrid" Columns="8" Width="120"/>
+                            <Button x:Name="ChangeColorButton" DockPanel.Dock="Bottom" Click="ChangeColorButton_Click">Change Preview Color</Button>
+                        </DockPanel>
                     </Border>
                 </Viewbox>
             </DockPanel>
             <Grid Name="CollapsableBMHPane" Grid.Column="1">
                 <ListBox x:Name="BMHResourceListBox" Margin="10" SelectionChanged="BMHResourceListBox_SelectionChanged"/>
             </Grid>
-            <Border Grid.Column="2" BorderBrush="Black" BorderThickness="1" Background="Blue" Margin="10" VerticalAlignment="Center" HorizontalAlignment="Center" Padding="10">
-                <ContentControl Background="White">
+            <Border Grid.Column="2" BorderBrush="Black" BorderThickness="1" Background="#FF202020" Margin="10" VerticalAlignment="Center" HorizontalAlignment="Center" Padding="10">
+                <Border BorderBrush="DeepSkyBlue" BorderThickness="1">
+                    <Border.Background>
+                        <ImageBrush TileMode="Tile" Stretch="Fill" Viewport="0,0,10,10" ViewportUnits="Absolute" Opacity=".2" ImageSource="/Assets/Img/transparent.png"/>
+                    </Border.Background>
                     <Image Name="PreviewImage" RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Uniform">
                         <Image.ContextMenu>
                             <ContextMenu MinWidth="150">
@@ -40,7 +46,7 @@
                             </ContextMenu>
                         </Image.ContextMenu>
                     </Image>
-                </ContentControl>
+                </Border>
             </Border>
         </Grid>
     </DockPanel>

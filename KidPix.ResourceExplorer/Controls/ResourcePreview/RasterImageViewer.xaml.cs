@@ -1,23 +1,11 @@
 ﻿using KidPix.API.Importer;
 using KidPix.API.Importer.Graphics;
 using KidPix.API.Importer.tBMP.Decompressor;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace KidPix.ResourceExplorer.Controls.ResourcePreview
 {
@@ -265,25 +253,23 @@ namespace KidPix.ResourceExplorer.Controls.ResourcePreview
         /// </summary>
         private void ResetPaletteUI()
         {
-            //deregister all
-            foreach(UIElement rectControl in PaletteEntriesGrid.Children)            
-                rectControl.MouseLeftButtonUp -= OnPaletteSelection;
             PaletteEntriesGrid.Children.Clear();
             PaletteRule.Width = new GridLength(0, GridUnitType.Star);
             CollapsablePalettePane.Visibility = Visibility.Collapsed;
         }
 
-        private void OnPaletteSelection(object sender, MouseButtonEventArgs e)
+        private void ChangeColorButton_Click(object sender, RoutedEventArgs e)
         {
-            return;
-            //COMPLETELY DISABLED FOR NOW
-            if (sender is not Border borderControl) return;
-            if (borderControl.Tag is not PaletteEntryDescription desc) return;
-            if (_paintableResource?.Paint()?.Palette == null) return;
-
-            var palt = _paintableResource.Paint()?.Palette;
-
-            System.Drawing.Color paltEntry = palt.Entries[desc.PaletteIndex];
+            if (_paintableResource == null) return;
+            System.Windows.Forms.ColorDialog dlg = new()
+            {
+                AllowFullOpen = true,
+                AnyColor = true,
+                SolidColorOnly = true
+            };
+            if (dlg.ShowDialog() != System.Windows.Forms.DialogResult.OK) return;
+            _paintableResource.SetPaletteToPrimaryColorPalette(dlg.Color, API.Common.GraphicsExtensions.Opaqueness.SemiOpaque);
+            OnDisplay();
         }
 
         private void StepOverButton_Click(object sender, RoutedEventArgs e)
@@ -338,7 +324,7 @@ namespace KidPix.ResourceExplorer.Controls.ResourcePreview
         private void CopyImageClipboardMenuItem_Click(object sender, RoutedEventArgs e)
         {
             Clipboard.SetImage((BitmapSource)PreviewImage.Source);
-        }
+        }        
 
         public object? GetResourceInformationContext() => _paintableResource?.Header;
 

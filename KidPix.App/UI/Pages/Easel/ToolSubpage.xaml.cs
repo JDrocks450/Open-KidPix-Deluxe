@@ -1,7 +1,11 @@
 ﻿using KidPix.API.AppService.Model;
+using KidPix.API.AppService.Render.CanvasBrushes;
 using KidPix.API.AppService.Sessions;
 using KidPix.API.AppService.Sessions.Contexts;
+using KidPix.App.UI.Brushes;
+using KidPix.App.UI.Controls;
 using KidPix.App.UI.Model;
+using KidPix.App.UI.Util;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -50,11 +54,31 @@ namespace KidPix.App.UI.Pages.Easel
             //**ACQUIRE HOOKS TO KidPixSession of the Easel parent
             if (sessionUIState == null) return; // not good, this component will not work at all            
             CurrentStateProperty.Bind(this,sessionUIState.ToolSubpageState);
+
+            //**We must bind the pencil primary color property to the SelectedColor property in gameplay state
+            var brushInstance = ((KPImageBrush)FindResource("UI_SelectedPrimaryColorBrush"));
+            KPImageBrush.PalettePrimaryColorProperty.BindKPtoWPFOneWay(brushInstance,
+                mySession.GameplayState.SelectedPrimaryColor, (System.Drawing.Color c) => c.ToMediaColor());
+
+            //**debug bind selected tool label to selected tool
+            TextBlock.TextProperty.BindKPtoWPFOneWay(DEBUG_SelectedToolLabel, mySession.GameplayState.SelectedCanvasBrush, (KidPixCanvasBrush? selectedBrush) => selectedBrush.BrushName);
         }
 
         private void FirstSection_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             sessionUIState.ToolSubpageState.Value++;
+        }
+
+        private async void DrawToolButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is not KPButton button) return;
+            if (button.Tag is not string EnumName) return;
+            if (string.IsNullOrWhiteSpace(EnumName)) return;
+            if (!Enum.TryParse<KidPixUILibrary.KPUtilBrushes>(EnumName, true, out KidPixUILibrary.KPUtilBrushes ToolType)) return;
+            //----
+            System.Drawing.Color primColor = mySession.GameplayState.SelectedPrimaryColor.Value;
+            double radiusSize = mySession.GameplayState.SelectedBrushSizeRadius.Value;
+            mySession.GameplayState.SelectedCanvasBrush.Value = await KidPixUILibrary.CreateBrush(ToolType, primColor, radiusSize);
         }
     }
 }

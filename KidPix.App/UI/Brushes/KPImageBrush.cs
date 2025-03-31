@@ -1,4 +1,5 @@
 ﻿using KidPix.API;
+using KidPix.API.Importer;
 using KidPix.API.Importer.Mohawk;
 using KidPix.App.UI.Util;
 using System;
@@ -10,6 +11,7 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
+using static KidPix.API.Common.GraphicsExtensions;
 
 namespace KidPix.App.UI.Brushes
 {
@@ -43,7 +45,7 @@ namespace KidPix.App.UI.Brushes
         }
         public static DependencyProperty BrushReferenceProperty = DependencyProperty.Register(nameof(BrushReference), typeof(Brush), typeof(KPBrush));
         private Brush _brush;
-
+        
         /// <summary>
         /// Loads (or reloads) assets used by this object using the <see cref="KidPixUILibrary"/>
         /// </summary>
@@ -82,7 +84,7 @@ namespace KidPix.App.UI.Brushes
 
         public KPImageBrush() : base()
         {
-            base.BrushReference = new ImageBrush();
+            base.BrushReference = new ImageBrush();            
         }
 
         public KPImageBrush(CHUNK_TYPE assetType, ushort assetID) : this()
@@ -120,6 +122,24 @@ namespace KidPix.App.UI.Brushes
         }
         public Color? TransparentColor { get; set; } = default;
 
+        /// <summary>
+        /// For palettized <see cref="KPImageBrush"/> images, this will set the color of the palette
+        /// <para/>Many brushes and controls use this to change their color based on settings or gameplay mechanics
+        /// </summary>
+        public Color PalettePrimaryColor
+        {
+            get => (Color)GetValue(PalettePrimaryColorProperty);
+            set => SetValue(PalettePrimaryColorProperty, value);
+        }
+        public static DependencyProperty PalettePrimaryColorProperty = DependencyProperty.Register(nameof(PalettePrimaryColor), typeof(Color), 
+            typeof(KPBrush), new PropertyMetadata(OnPaletteColorChangedCallback));        
+
+        private static void OnPaletteColorChangedCallback(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (sender is not KPImageBrush imageBrush) return;
+            imageBrush.DoLazyLoadInvalidate();
+        }
+
         protected void DoLazyLoadInvalidate()
         {
             if (_lazyLoadQueued) return;
@@ -129,10 +149,17 @@ namespace KidPix.App.UI.Brushes
                 _lazyLoadQueued = false;
                 await LoadResources();
                 await InvalidateBrush();
-            });
+            }, DispatcherPriority.Render);
         }
 
-        public override async Task LoadResources() => myResource = (await KidPixUILibrary.ResourceToBrush(new(AssetType, AssetID), BMHFrame, TransparentColor))?.ImageSource;
+        protected async Task<ImageBrush?> LibraryImport(int OverrideBMHFrame = -1) => await KidPixUILibrary.ResourceToBrush(new(AssetType, AssetID), OverrideBMHFrame != -1 ? OverrideBMHFrame : BMHFrame, new() 
+        { 
+            TransparentColor = TransparentColor, 
+            PrimaryColor = PalettePrimaryColor,
+            Opacity = Opaqueness.Opaque
+        });
+
+        public override async Task LoadResources() => myResource = (await LibraryImport())?.ImageSource;
 
         public override async Task InvalidateBrush()
         {
@@ -193,6 +220,7 @@ namespace KidPix.App.UI.Brushes
         public int[] AnimationFrames {
             get
             {
+                if (Range == null) return new int[0];
                 //PARSE STRING NOW
                 //check for commas
                 string[] groups = Range.Split(',');
@@ -238,7 +266,7 @@ namespace KidPix.App.UI.Brushes
             _animationFrames.Clear();
             foreach (int FrameID in AnimationFrames)
             {
-                var img = (await KidPixUILibrary.ResourceToBrush(new API.MHWKIdentifierToken(AssetType, AssetID), FrameID, TransparentColor))?.ImageSource;
+                var img = (await LibraryImport(FrameID))?.ImageSource;
                 if (img == null) throw new NullReferenceException(nameof(img));
                 _animationFrames.Add(img);
             }

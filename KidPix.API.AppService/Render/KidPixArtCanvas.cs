@@ -1,60 +1,16 @@
 ﻿using KidPix.API.AppService.Model;
+using KidPix.API.AppService.Render.CanvasBrushes;
 using System.Drawing;
 using System.Numerics;
-using static KidPix.API.AppService.Render.KidPixCanvasBrush;
+using static KidPix.API.AppService.Render.CanvasBrushes.KidPixCanvasBrush;
 
 namespace KidPix.API.AppService.Render
 {    
     /// <summary>
-    /// Represents the current tool selected for use in painting to a <see cref="KidPixArtCanvas"/>
-    /// </summary>
-    public abstract class KidPixCanvasBrush
-    {
-        public KidPixCanvasBrush(Color primaryColor, double radius)
-        {
-            PrimaryColor = primaryColor;
-            Radius = radius;
-        }
-
-        public enum PaintingCoordinateOrigin
-        {
-            TopLeft,
-            Center
-        }
-
-        /// <summary>
-        /// The selected color by the user
-        /// </summary>
-        public Color PrimaryColor { get; set; }
-        public double Radius { get; set; } = 5;
-
-        internal abstract Brush GetMyBrushInternal();
-        internal abstract void PaintInternal(Graphics graphics, Point PaintPosition, PaintingCoordinateOrigin PaintPositionOrigin);
-    }
-    /// <summary>
-    /// A basic tool that draws a circular area of a given size and color.
-    /// <para/>This tool uses no external resources and is self-contained
-    /// </summary>
-    public class KidPixPencilToolBrush : KidPixCanvasBrush
-    {
-        public KidPixPencilToolBrush(Color primaryColor, double radius) : base(primaryColor, radius) { }
-
-        internal override Brush GetMyBrushInternal() => new SolidBrush(PrimaryColor);
-
-        internal override void PaintInternal(Graphics graphics, Point PaintPosition, PaintingCoordinateOrigin PaintPositionOrigin)
-        {
-            if (PaintPositionOrigin == PaintingCoordinateOrigin.TopLeft)
-                PaintPosition = new Point(PaintPosition.X - (int)Radius, PaintPosition.Y - (int)Radius);
-            using Brush p = GetMyBrushInternal();
-            graphics.FillEllipse(p, new Rectangle(PaintPosition, new Size((int)(Radius * 2), (int)(Radius * 2))));
-        }
-    }
-
-    /// <summary>
     /// Exposes functionality to create and manipulate a Bitmap with special functionality for User Control
     /// <para/>You should use this to help you display a new canvas to draw stuff on
     /// </summary>
-    public class KidPixArtCanvas : KidPixDependecyObject, IDisposable
+    public class KidPixArtCanvas : KidPixDependencyObject, IDisposable
     {
         private Graphics _graphics;
         private Point MousePosition = new(0,0);
@@ -82,26 +38,19 @@ namespace KidPix.API.AppService.Render
             public bool ContinuousSprayMode { get; set; } = false;
         }
         private Stroke? _currentStroke;
-        private KidPixDependencyProperty<KidPixCanvasBrush?> _selectedBrush = RegisterProperty<KidPixCanvasBrush?>();
 
         /// <summary>
         /// Changes the currently selected tool (Brush) to be the new one.
         /// <para/>Changing tool mid <see cref="Stroke"/> is not allowed and the stroke will be cancelled upon setting 
         /// this value to a different tool (brush)
         /// </summary>
-        public KidPixDependencyProperty<KidPixCanvasBrush?> SelectedTool
+        public KidPixDependencyProperty<KidPixCanvasBrush?> SelectedTool { get; } = RegisterProperty<KidPixCanvasBrush?>(OnBrushChange);
+        private static void OnBrushChange(KidPixDependencyObject Sender,
+            KidPixCanvasBrush? OldBrush, KidPixCanvasBrush? NewBrush)
         {
-            get => _selectedBrush;
-            set
-            {
-                _selectedBrush = value;
-                OnBrushChange();
-            }
-        }
-        private void OnBrushChange()
-        {
-            if (IsPainting)
-                StopStroke();
+            KidPixArtCanvas? instance = Sender as KidPixArtCanvas;
+            if (instance.IsPainting)
+                instance.StopStroke();
         }
 
         /// <summary>
@@ -192,11 +141,13 @@ namespace KidPix.API.AppService.Render
             Dispose(); // dispose of old bitmap image
 
             CanvasImage = new Bitmap(CanvasDefinition.Width, CanvasDefinition.Height);
-            _graphics = Graphics.FromImage(CanvasImage);
+            _graphics = Graphics.FromImage(CanvasImage);            
 
             //Fill the canvas with white
             using Brush whiteBrush = new SolidBrush(Color.White);
             _graphics.FillRectangle(whiteBrush, new Rectangle(0,0,CanvasDefinition.Width,CanvasDefinition.Height));
+            _graphics.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceOver;
+            _graphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.GammaCorrected;
         }
 
         /// <summary>
