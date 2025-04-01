@@ -14,7 +14,7 @@ namespace KidPix.App.UI.Pages.Easel
     {
         private KidPixSession? _session;
         private KidPixSession? mySession => _session ?? (_session = ((ITypedVisualObjectChildComponent<EaselUI>)this)?.MyTypedParent?.MySession);
-        private KidPixUIContext? sessionUIState => mySession?.GameplayState?.UIState;
+        private KidPixUIContext? sessionUIState => mySession?.UIState;
 
         public ToolCupboard()
         {
@@ -37,7 +37,7 @@ namespace KidPix.App.UI.Pages.Easel
         private void BindUIButtonsToSubpageUIState()
         {
             //uses a converter to test the current state of the ui subpage if it matches that of the button
-            API.AppService.Model.KidPixDependencyProperty<KidPixUIEnum.EaselToolSubpageUIStates> state = mySession.GameplayState.UIState.ToolSubpageState;
+            API.AppService.Model.KidPixDependencyProperty<KidPixUIEnum.EaselToolSubpageUIStates> state = mySession.UIState.ToolSubpageState;
             KPButton.IsCheckedProperty.BindKPtoWPFOneWay(DrawButton, state, (KidPixUIEnum.EaselToolSubpageUIStates e) => e == KidPixUIEnum.EaselToolSubpageUIStates.Pencils);
             KPButton.IsCheckedProperty.BindKPtoWPFOneWay(PaintButton, state, (KidPixUIEnum.EaselToolSubpageUIStates e) => e == KidPixUIEnum.EaselToolSubpageUIStates.Paints);
             KPButton.IsCheckedProperty.BindKPtoWPFOneWay(SelectionButton, state, (KidPixUIEnum.EaselToolSubpageUIStates e) => e == KidPixUIEnum.EaselToolSubpageUIStates.ClippingSelections);
@@ -64,7 +64,7 @@ namespace KidPix.App.UI.Pages.Easel
 
         private void ToolCupboardItemClicked(object sender, System.Windows.RoutedEventArgs e)
         {
-            API.AppService.Model.KidPixDependencyProperty<KidPixUIEnum.EaselToolSubpageUIStates> toolSubpageState = mySession.GameplayState.UIState.ToolSubpageState;
+            API.AppService.Model.KidPixDependencyProperty<KidPixUIEnum.EaselToolSubpageUIStates> toolSubpageState = mySession.UIState.ToolSubpageState;
             if (sender == DrawButton) toolSubpageState.Value = KidPixUIEnum.EaselToolSubpageUIStates.Pencils; //PENS
             else if (sender == PaintButton) toolSubpageState.Value = KidPixUIEnum.EaselToolSubpageUIStates.Paints; // PAINTS
             else if (sender == AudioButton) toolSubpageState.Value = KidPixUIEnum.EaselToolSubpageUIStates.Audios; // AUDIOS

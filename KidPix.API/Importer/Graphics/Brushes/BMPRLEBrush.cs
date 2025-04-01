@@ -17,7 +17,7 @@ namespace KidPix.API.Importer.tBMP.Decompressor
 #else 
             false;
 #endif
-        private static int SET_MAX_COMMANDS = DEBUGGING_ENABLED ? 1 : int.MaxValue;
+        private static int SET_MAX_COMMANDS = /*DEBUGGING_ENABLED ? 1 :*/ int.MaxValue;
 
 
         private static int DEBUG_DrawCalls = 0;
@@ -29,6 +29,7 @@ namespace KidPix.API.Importer.tBMP.Decompressor
 
         public static bool AssertCanContinue() => DEBUG_DrawCalls > DEBUG_MAX_COMMANDS && !DEBUG_RUNNING_UNTIL_NEXT_SCAN;
         public static void IncNewCall() => DEBUG_DrawCalls++;
+        public static void ResetCalls() => DEBUG_DrawCalls=0;
 
         public static void AssertRowCompleted()
         {
@@ -100,6 +101,7 @@ namespace KidPix.API.Importer.tBMP.Decompressor
         {
             //DIAGNOSTIC
             Dictionary<int, List<RLEDrawCall>> drawCallsByRow = BMPRLE16BrushDebug.DEBUG_DrawCallsByRow = new();
+            BMPRLE16BrushDebug.ResetCalls();
 
             var _data = ImageData;
             var _header = Header;
@@ -181,6 +183,7 @@ namespace KidPix.API.Importer.tBMP.Decompressor
                             throw new InvalidOperationException($"The amount of bytes requested to copy: {copyByteLength} was longer than the scanline's available data: {scanLineSizeBytes}");
                         drawCall.COPIED_BYTES = reader.BaseStream.Read(rawData, rawDataIndex, copyByteLength);
                         rawDataIndex += copyByteLength;
+                        drawCall.CREATED_PIXELS = copyByteLength / 2;
                         readBytes += copyByteLength;
                         goto SAFEEXIT;
                     }
@@ -199,18 +202,19 @@ namespace KidPix.API.Importer.tBMP.Decompressor
                             //RLE Pixel 1
                             rawData[rawDataIndex++] = PIXELVAL1; 
                             rawData[rawDataIndex++] = PIXELVAL2;
+                            drawCall.CREATED_PIXELS += 1;
                         }                        
                     }
                     else if (OPCODE == 0x81)
                     {
-                        for (int loops = 0; loops < (REPEAT_LENGTH << 1); loops+=2)
+                        int repeatLength = REPEAT_LENGTH;
+                        repeatLength += 256;
+                        for (int loops = 0; loops < repeatLength; loops++)
                         {
                             //Dithering pixel 1
                             rawData[rawDataIndex++] = PIXELVAL1; 
                             rawData[rawDataIndex++] = PIXELVAL2;
-                            //Dithering pixel 2
-                            rawData[rawDataIndex++] = PIXELVAL3;
-                            rawData[rawDataIndex++] = PIXELVAL4;
+                            drawCall.CREATED_PIXELS += 1;
                         }
                     }
                     else

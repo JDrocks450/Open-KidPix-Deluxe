@@ -1,0 +1,42 @@
+﻿<UserControl x:Class="KidPix.App.UI.Pages.Easel.SizeSelector"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:KidPix.App.UI.Pages.Easel" xmlns:brushes="clr-namespace:KidPix.App.UI.Brushes" xmlns:controls="clr-namespace:KidPix.App.UI.Controls"
+             mc:Ignorable="d" 
+             Width="64" Height="66">
+    <UserControl.Resources>
+        <brushes:KPImageBrush x:Key="SS_PencilsSizeSelectBGKey" AssetType="tBMH" AssetID="18000" BMHFrame="746"/>
+        <brushes:KPImageBrush x:Key="SS_SizeSelectMedBGKey" AssetType="tBMH" AssetID="18000" BMHFrame="745"/>
+        <brushes:KPImageBrush x:Key="SS_SizeSelectTallBGKey" AssetType="tBMH" AssetID="18000" BMHFrame="744"/>
+    </UserControl.Resources>
+    <Grid Background="{Binding BrushReference, Source={StaticResource SS_PencilsSizeSelectBGKey}}">
+        <StackPanel Margin="10,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center">
+            <controls:KPButton x:Name="SmallButton" Width="12" Height="12" Tag="Small" Click="LargeButton_Click">
+                <controls:KPButton.KPBackgroundBrush>
+                    <brushes:KPImageBrush AssetID="18000" AssetType="tBMH" BMHFrame="474"/>
+                </controls:KPButton.KPBackgroundBrush>
+                <controls:KPButton.KPSelectedBrush>
+                    <brushes:KPImageBrush AssetID="18000" AssetType="tBMH" BMHFrame="476"/>
+                </controls:KPButton.KPSelectedBrush>
+            </controls:KPButton>
+            <controls:KPButton x:Name="MediumButton" Width="16" Height="16" Margin="0,3" Tag="Medium" Click="LargeButton_Click">
+                <controls:KPButton.KPBackgroundBrush>
+                    <brushes:KPImageBrush AssetType="tBMH" AssetID="18000" BMHFrame="477"/>
+                </controls:KPButton.KPBackgroundBrush>
+                <controls:KPButton.KPSelectedBrush>
+                    <brushes:KPImageBrush AssetID="18000" AssetType="tBMH" BMHFrame="479"/>
+                </controls:KPButton.KPSelectedBrush>
+            </controls:KPButton>
+            <controls:KPButton x:Name="LargeButton" Width="24" Height="24" Tag="Large" Click="LargeButton_Click">
+                <controls:KPButton.KPBackgroundBrush>
+                    <brushes:KPImageBrush AssetID="18000" AssetType="tBMH" BMHFrame="480"/>
+                </controls:KPButton.KPBackgroundBrush>
+                <controls:KPButton.KPSelectedBrush>
+                    <brushes:KPImageBrush AssetID="18000" AssetType="tBMH" BMHFrame="482"/>
+                </controls:KPButton.KPSelectedBrush>
+            </controls:KPButton>
+        </StackPanel>
+    </Grid>
+</UserControl>

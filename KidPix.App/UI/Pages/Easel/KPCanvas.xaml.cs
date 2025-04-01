@@ -63,9 +63,18 @@ namespace KidPix.App.UI.Pages.Easel
 
             //**HOOK events and variables on the canvas
             mySession.GameplayState.SelectedCanvasBrush.ValueChanged += OnToolChanged;
-            mySession.GameplayState.SelectedCanvasBrush.Value = KidPixCanvasBrushes.Pencil(mySession.GameplayState.SelectedPrimaryColor, 5);            
+            mySession.GameplayState.SelectedCanvasBrush.Value = KidPixCanvasBrushes.Pencil(mySession.GameplayState.SelectedPrimaryColor, 5);
+            mySession.GameplayState.SelectedBrushSizeRadius.ValueChanged += BrushSizeChanged;
             
             DisplayArtCanvas();
+        }
+
+        private void BrushSizeChanged(API.AppService.Model.KidPixDependencyObject Parent, API.AppService.Model.IKidPixDependencyProperty Property)
+        {
+            KidPixCanvasBrush myBrush = myCanvas.SelectedTool.Value;
+            if (myBrush == default) return;
+            myBrush.Radius = mySession.GameplayState.SelectedBrushSizeRadius.Value;
+            OnToolChanged(null,null);
         }
 
         private void SelectedColorChanged(API.AppService.Model.KidPixDependencyObject Parent, API.AppService.Model.IKidPixDependencyProperty Property)
@@ -78,11 +87,13 @@ namespace KidPix.App.UI.Pages.Easel
             disabled = true;
             UserSelectionCursor.Visibility = Visibility.Hidden;
             if (myCanvas.SelectedTool.Value == null) return; // no brush! hide the selection cursor...
-            disabled = false;
+            disabled = false;            
             KidPixCanvasBrush myBrush = myCanvas.SelectedTool.Value;
             UserSelectionCursor.Visibility = Visibility.Visible;
             UserSelectionCursor.Width = myBrush.Radius * 2;
             UserSelectionCursor.Height = myBrush.Radius * 2;
+            if (mySession.UIState.BrushSizeIndexSelected.Value == KidPixUIEnum.UIBrushSizeSelectionStates.None)
+                mySession.UIState.BrushSizeIndexSelected.Value = KidPixUIEnum.UIBrushSizeSelectionStates.Small; // select small size
         }
 
         private void DisplayArtCanvas()

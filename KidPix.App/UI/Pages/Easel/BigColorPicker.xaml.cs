@@ -32,14 +32,14 @@ namespace KidPix.App.UI.Pages.Easel
 
         public BigColorPicker()
         {
-            KidPixUILibrary.LinkResource("BigPicker.MHK");
+            KidPixUILibrary.LinkResource("BigPicker.MHK");                        
 
             InitializeComponent();
         }
 
         private async void BigColorPicker_Loaded(object sender, RoutedEventArgs e)
         {
-            mySession.GameplayState.UIState.BigPickerOpened.ValueChanged += PropertyChanged;
+            mySession.UIState.BigPickerOpened.ValueChanged += PropertyChanged;
 
             //*load palette bmp
             API.Importer.Mohawk.CHUNK_TYPE AssetType = API.Importer.Mohawk.CHUNK_TYPE.tBMH;
@@ -52,13 +52,13 @@ namespace KidPix.App.UI.Pages.Easel
 
         private void PropertyChanged(API.AppService.Model.KidPixDependencyObject Parent, API.AppService.Model.IKidPixDependencyProperty Property)
         {
-            if (mySession.GameplayState.UIState.BigPickerOpened.Value) Open();
+            if (mySession.UIState.BigPickerOpened.Value) Open();
             else Close();
         }
 
         private void UserControl_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            mySession.GameplayState.UIState.BigPickerOpened.Value = false; // close as the user could be trying to dismiss the control
+            mySession.UIState.BigPickerOpened.Value = false; // close as the user could be trying to dismiss the control
             if (_paletteBitmap == null) return;
             if (!PaletteImageControl.IsMouseOver) return;
             Point mousePos = Mouse.GetPosition(PaletteImageControl);

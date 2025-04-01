@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using KidPix.API.AppService.Render.DrawFunctions;
+using System.Drawing;
 
 namespace KidPix.API.AppService.Render.CanvasBrushes
 {
@@ -40,6 +41,9 @@ namespace KidPix.API.AppService.Render.CanvasBrushes
         private string? _name;
 
         public double Radius { get; set; } = 5;
+
+        public KidPixCanvasBrushDrawingFunction BrushDrawingFunction { get; set; } = new FreePaintDrawFunction();
+
         /// <summary>
         /// Returns a new instance of whatever <see cref="Brush"/> corresponds with this <see cref="KidPixCanvasBrush"/> 
         /// </summary>
@@ -51,12 +55,19 @@ namespace KidPix.API.AppService.Render.CanvasBrushes
         /// <param name="graphics"></param>
         /// <param name="PaintPosition"></param>
         /// <param name="PaintPositionOrigin"></param>
-        internal virtual void PaintInternal(Graphics graphics, Point PaintPosition, PaintingCoordinateOrigin PaintPositionOrigin)
-        {
-            if (PaintPositionOrigin == PaintingCoordinateOrigin.TopLeft)
-                PaintPosition = new Point(PaintPosition.X - (int)Radius, PaintPosition.Y - (int)Radius);
+        internal virtual void PaintInternal(Graphics graphics, Point PaintPosition, Stroke CurrentStroke)
+        {            
             using Brush p = GetMyBrushInternal();
-            graphics.FillEllipse(p, new Rectangle(PaintPosition, new Size((int)(Radius * 2), (int)(Radius * 2))));
+            if (p is TextureBrush texBrush)
+            {
+                texBrush.TranslateTransform(PaintPosition.X, PaintPosition.Y);
+                texBrush.ScaleTransform((float)(Radius * 2) / texBrush.Image.Width, (float)(Radius * 2) / texBrush.Image.Height);
+            }
+            BrushDrawingFunction.DoPaintingFunction(new() { 
+                Graphics = graphics, 
+                GDIBrush = p, 
+                Radius = Radius 
+            }, [PaintPosition, CurrentStroke.StartPosition]);
         }
         /// <summary>
         /// Called when the <see cref="PrimaryColor"/> property changes value

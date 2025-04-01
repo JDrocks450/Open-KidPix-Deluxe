@@ -14,29 +14,7 @@ namespace KidPix.API.AppService.Render
     {
         private Graphics _graphics;
         private Point MousePosition = new(0,0);
-
-        private class Stroke
-        {
-            public Stroke(Point mousePosition)
-            {
-                StartPosition = CurrentPosition = mousePosition;
-            }
-
-            /// <summary>
-            /// The current position of the brush over the canvas
-            /// </summary>
-            public Point CurrentPosition { get; set; }
-            /// <summary>
-            /// The position on the canvas where this stroke began
-            /// </summary>
-            public Point StartPosition { get; set; }
-            /// <summary>
-            /// Brush strokes will intentionally not overdraw if the user is holding the brush down yet hasn't actually moved it
-            /// <para/>This mode will continue to paint in the same position as long as the brush is down, thus overdrawing to the canvas
-            /// <para/>Default is false
-            /// </summary>
-            public bool ContinuousSprayMode { get; set; } = false;
-        }
+        
         private Stroke? _currentStroke;
 
         /// <summary>
@@ -95,29 +73,16 @@ namespace KidPix.API.AppService.Render
                 throw new InvalidOperationException("You cannot commit a Stroke right now. You haven't selected a tool or brush yet.");
 
             Point currentPos = new(X, Y);
+            if (CoordinateOrigin == PaintingCoordinateOrigin.TopLeft)
+                currentPos = new Point(X - (int)SelectedTool.Value.Radius, Y - (int)SelectedTool.Value.Radius);
+
             if (_currentStroke == null)
                 _currentStroke = new Stroke(currentPos);
             else if (_currentStroke.CurrentPosition == currentPos && !_currentStroke.ContinuousSprayMode)
                 return; // The brush hasn't moved and continuous spray mode isn't on, cancel this stroke
-
-            MousePosition = currentPos;
             
-            Point drawPoint = currentPos;
-            double strokeLen = Vector2.Distance(new(X,Y), new(_currentStroke.CurrentPosition.X, _currentStroke.CurrentPosition.Y));
-            int totalStrokeLen = (int)Math.Round(strokeLen);
-
-            if (strokeLen > 0)
-            {
-                for (int i = 0; i < totalStrokeLen; i++)
-                {
-                    float percentage = i / (float)totalStrokeLen;
-                    var lerpedPoint = Vector2.Lerp(new(X, Y), new(_currentStroke.CurrentPosition.X, _currentStroke.CurrentPosition.Y), percentage);
-                    drawPoint = new((int)Math.Round(lerpedPoint.X), (int)Math.Round(lerpedPoint.Y));
-                    SelectedTool.Value.PaintInternal(_graphics, drawPoint, CoordinateOrigin);
-                }
-            }
-            else SelectedTool.Value.PaintInternal(_graphics, drawPoint, CoordinateOrigin);
-
+            MousePosition = currentPos;
+            SelectedTool.Value.BrushDrawingFunction.DoDrawFunction(_graphics, SelectedTool.Value, currentPos, _currentStroke);
             _currentStroke.CurrentPosition = MousePosition;
         }
         /// <summary>

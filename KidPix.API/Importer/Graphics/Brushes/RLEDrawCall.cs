@@ -23,6 +23,8 @@
 
             public int COPIED_BYTES { get; set; }
 
+            public int CREATED_PIXELS { get; set; }
+
             public override string ToString()
             {
                 return $"[{OFFSET:X8}] OPCODES: 0x{OPCODE1:X2},0x{OPCODE2:X2} (PARAM0:{OPCODEPARAM1:X4}, " +

@@ -50,5 +50,15 @@ namespace KidPix.API.AppService.Sessions
             Stamps,
             Stickers
         }
+        /// <summary>
+        /// Maps to the size selections for a brush which can appear as a control in the Tool Subpage with three circles illustrating sizes from small to large
+        /// </summary>
+        public enum UIBrushSizeSelectionStates
+        {
+            None,
+            Small,
+            Medium,
+            Large
+        }
     }
 }

@@ -30,7 +30,7 @@ namespace KidPix.App.UI.Pages.Easel
     public partial class ToolSubpage : Page, INotifyPropertyChanged, ITypedVisualObjectChildComponent<EaselUI>
     {
         private KidPixSession? mySession => _session ?? (_session = ((ITypedVisualObjectChildComponent<EaselUI>)this)?.MyTypedParent?.MySession);
-        private KidPixUIContext? sessionUIState => mySession?.GameplayState?.UIState;
+        private KidPixUIContext? sessionUIState => mySession?.UIState;
         
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -75,7 +75,7 @@ namespace KidPix.App.UI.Pages.Easel
             if (button.Tag is not string EnumName) return;
             if (string.IsNullOrWhiteSpace(EnumName)) return;
             if (!Enum.TryParse<KidPixUILibrary.KPUtilBrushes>(EnumName, true, out KidPixUILibrary.KPUtilBrushes ToolType)) return;
-            //----
+            //----            
             System.Drawing.Color primColor = mySession.GameplayState.SelectedPrimaryColor.Value;
             double radiusSize = mySession.GameplayState.SelectedBrushSizeRadius.Value;
             mySession.GameplayState.SelectedCanvasBrush.Value = await KidPixUILibrary.CreateBrush(ToolType, primColor, radiusSize);

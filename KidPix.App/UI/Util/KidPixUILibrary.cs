@@ -91,6 +91,13 @@ namespace KidPix.App.UI.Util
 
         }
 
+        /// <summary>
+        /// Creates a pre-created <see cref="KidPixCanvasBrush"/> based on the given tool description
+        /// </summary>
+        /// <param name="CreateBrush"></param>
+        /// <param name="PrimaryColor"></param>
+        /// <param name="Radius"></param>
+        /// <returns></returns>
         public static async Task<KidPixCanvasBrush?> CreateBrush(KPUtilBrushes CreateBrush, System.Drawing.Color PrimaryColor, double Radius)
         {
             async Task<KidPixImageCanvasBrush?> getImageBrush(ushort AssetID, CHUNK_TYPE AssetType = CHUNK_TYPE.tBMP)

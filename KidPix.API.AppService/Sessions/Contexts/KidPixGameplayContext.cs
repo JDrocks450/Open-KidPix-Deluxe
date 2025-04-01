@@ -13,11 +13,7 @@ namespace KidPix.API.AppService.Sessions.Contexts
         public static readonly Color Default_Color = Color.LightGreen;
 
         public KidPixDependencyProperty<KidPixGameplayStates> GameplayState { get; } = RegisterProperty<KidPixGameplayStates>();
-
-        /// <summary>
-        /// The current state of UI variables
-        /// </summary>
-        public KidPixUIContext UIState { get; } = new();
+        
         /// <summary>
         /// The image that this session allows the User to play with
         /// </summary>
@@ -35,6 +31,6 @@ namespace KidPix.API.AppService.Sessions.Contexts
         /// <summary>
         /// The currently selected tool size for use on the <see cref="ArtCanvas"/>.
         /// </summary>
-        public KidPixDependencyProperty<double> SelectedBrushSizeRadius { get; } = new KidPixDependencyProperty<double>(10);
+        public KidPixDependencyProperty<double> SelectedBrushSizeRadius { get; } = new KidPixDependencyProperty<double>();
     }
 }

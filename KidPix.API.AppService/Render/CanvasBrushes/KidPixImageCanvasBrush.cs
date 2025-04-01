@@ -36,16 +36,6 @@ namespace KidPix.API.AppService.Render.CanvasBrushes
             return new TextureBrush(BrushImage, new Rectangle(0,0,BrushImage.Width,BrushImage.Height), imgAtts);
         }
 
-        internal override void PaintInternal(Graphics graphics, Point PaintPosition, PaintingCoordinateOrigin PaintPositionOrigin)
-        {
-            if (PaintPositionOrigin == PaintingCoordinateOrigin.TopLeft)
-                PaintPosition = new Point(PaintPosition.X - (int)Radius, PaintPosition.Y - (int)Radius);
-            using TextureBrush p = (TextureBrush)GetMyBrushInternal();
-            p.TranslateTransform(PaintPosition.X, PaintPosition.Y);
-            p.ScaleTransform((float)(Radius * 2) / p.Image.Width, (float)(Radius * 2) / p.Image.Height);
-            graphics.FillEllipse(p, new Rectangle(PaintPosition, new Size((int)(Radius * 2), (int)(Radius * 2))));
-        }
-
         public override void OnColorChanged(Color newColor)
         {
             if (BrushImage != null)

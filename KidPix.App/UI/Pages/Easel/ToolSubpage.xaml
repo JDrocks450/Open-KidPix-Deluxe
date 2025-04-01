@@ -24,11 +24,6 @@
         <brushes:KPImageBrush x:Key="SS_OctagonalMedBackgroundKey" AssetType="tBMH" AssetID="18000" BMHFrame="742"/>
         <brushes:KPImageBrush x:Key="SS_OctagonalMedLightBackgroundKey" AssetType="tBMH" AssetID="18000" BMHFrame="747"/>
         <brushes:KPImageBrush x:Key="SS_OctagonalSmallBackgroundKey" AssetType="tBMH" AssetID="18000" BMHFrame="737"/>
-
-        <brushes:KPImageBrush x:Key="SS_PenSizeSelectBGKey" AssetType="tBMH" AssetID="18000" BMHFrame="746"/>
-        
-        <brushes:KPImageBrush x:Key="SS_SizeSelectMedBGKey" AssetType="tBMH" AssetID="18000" BMHFrame="745"/>
-        <brushes:KPImageBrush x:Key="SS_SizeSelectTallBGKey" AssetType="tBMH" AssetID="18000" BMHFrame="744"/>
     </Page.Resources>
     
     <Grid>
@@ -129,7 +124,8 @@
                     </Style.Triggers>
                 </Style>
             </Grid.Style>
-            <TextBlock Name="DEBUG_SelectedToolLabel" Margin="10,0" VerticalAlignment="Center" Foreground="Blue">SELECTED TOOL</TextBlock>
+            <TextBlock Name="DEBUG_SelectedToolLabel" Margin="10,0" VerticalAlignment="Center" Foreground="Blue" HorizontalAlignment="Center">SELECTED TOOL</TextBlock>
+            <local:SizeSelector HorizontalAlignment="Left" Margin="3,0"/>
         </Grid>
     </Grid>
 </Page>

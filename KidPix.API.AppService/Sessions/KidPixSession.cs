@@ -13,6 +13,10 @@ namespace KidPix.API.AppService.Sessions
         /// Determines the current state of gameplay variables
         /// </summary>
         public KidPixGameplayContext GameplayState { get; } = new();
+        /// <summary>
+        /// The current state of UI variables
+        /// </summary>
+        public KidPixUIContext UIState { get; } = new();
 
         internal KidPixSession(KidPixSessionTicket sessionID)
         {

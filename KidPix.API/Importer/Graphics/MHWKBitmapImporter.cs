@@ -65,7 +65,9 @@ namespace KidPix.API.Importer.Graphics
                     break;
                 default:
                     throw new Exception("Unknown draw routine: " + drawCompression);
-            }            
+            }
+            if (decompressed) // a new stream was created
+                decompressedImageStream.Dispose();
             return ResourceBytes != null;
         }
 

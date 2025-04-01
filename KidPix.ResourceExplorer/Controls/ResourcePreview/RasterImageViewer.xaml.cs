@@ -117,6 +117,47 @@ namespace KidPix.ResourceExplorer.Controls.ResourcePreview
             _debuggerWindow.Show();
             _debuggerWindow.Focus();
         }
+
+        /// <summary>
+        /// Creates a grid that will react to user input over the image to show what scan line commands are selected
+        /// </summary>
+        public void CreateRLEGrid(Grid RLEGrid, int ImageWidth, int ImageHeight)
+        {
+            RLEGrid.Width = ImageWidth;
+            RLEGrid.Height = ImageHeight;
+            RLEGrid.Children.Clear();
+            RLEGrid.ColumnDefinitions.Clear();
+            RLEGrid.RowDefinitions.Clear();
+
+            int row = -1;
+
+            //for each scan line...
+            foreach (KeyValuePair<int, List<API.Importer.tBMP.Decompressor.BMPRLE16Brush.RLEDrawCall>>
+                scanGroup in API.Importer.tBMP.Decompressor.BMPRLE16BrushDebug.DEBUG_DrawCallsByRow)
+            {
+                int column = 0;
+                row++;
+
+                //scan line begin
+                RLEGrid.RowDefinitions.Add(new RowDefinition());
+                StackPanel panel = new()
+                {
+                    Orientation = Orientation.Horizontal
+                };
+                RLEGrid.Children.Add(panel);
+                Grid.SetRow(panel, row);
+                int pixelsWrote = 0;
+                foreach (var call in scanGroup.Value) {                     
+                    pixelsWrote += call.CREATED_PIXELS;
+                    string str = $"Pixels: {pixelsWrote}/{ImageWidth}";
+                    panel.Children.Add(new Border()
+                    {
+                        Width = call.CREATED_PIXELS,
+                        ToolTip = $"{str}\n{call}"
+                    });
+                }
+            }
+        }
     }
 
     /// <summary>
@@ -199,7 +240,10 @@ namespace KidPix.ResourceExplorer.Controls.ResourcePreview
                 if (bmp == null) return;
 
                 if (BMPRLE16BrushDebug.DEBUGGING_ENABLED)
+                {
                     _debugProvider.EvaluateDebugWindows(_currentResource, CodeRunLinePreviewBox);
+                    _debugProvider.CreateRLEGrid(DEBUG_RleGrid, bmp.Width, bmp.Height);
+                }
 
                 MakePaletteUI(bmp.Palette);
             }
