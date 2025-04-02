@@ -17,13 +17,7 @@ namespace KidPix.API.AppService.Render.CanvasBrushes
         {
             PrimaryColor = primaryColor;
             Radius = radius;
-        }
-
-        public enum PaintingCoordinateOrigin
-        {
-            TopLeft,
-            Center
-        }
+        }        
 
         /// <summary>
         /// The selected color by the user
@@ -42,7 +36,7 @@ namespace KidPix.API.AppService.Render.CanvasBrushes
 
         public double Radius { get; set; } = 5;
 
-        public KidPixCanvasBrushDrawingFunction BrushDrawingFunction { get; set; } = new FreePaintDrawFunction();
+        public KidPixCanvasBrushDrawingFunction BrushDrawingFunction { get; set; } = new RectanglePaintDrawFunction();
 
         /// <summary>
         /// Returns a new instance of whatever <see cref="Brush"/> corresponds with this <see cref="KidPixCanvasBrush"/> 

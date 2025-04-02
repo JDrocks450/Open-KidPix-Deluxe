@@ -13,6 +13,7 @@ namespace KidPix.API.AppService.Render
     public class KidPixArtCanvas : KidPixDependencyObject, IDisposable
     {
         private Graphics _graphics;
+        private Bitmap _canvasImage, _previewCanvasImage;
         private Point MousePosition = new(0,0);
         
         private Stroke? _currentStroke;
@@ -43,7 +44,9 @@ namespace KidPix.API.AppService.Render
         /// <summary>
         /// A reference to the <see cref="Bitmap"/> this <see cref="KidPixArtCanvas"/> is altering
         /// </summary>
-        public Bitmap CanvasImage { get; private set; }
+        public Bitmap CanvasImage => _previewCanvasImage ?? _canvasImage;
+
+        private bool ToolCanPreview => SelectedTool?.Value?.BrushDrawingFunction?.IsPreviewable ?? false;
 
         /// <summary>
         /// Creates a new Blank canvas with the default <see cref="KidPixArtCanvasDefinition"/>
@@ -67,31 +70,62 @@ namespace KidPix.API.AppService.Render
         /// in accordance to the guidelines/logic of the <see cref="SelectedTool"/>
         /// <para/>For instance, if using a standard Pen this will linearly interpolate between this new call and the last for instances where the user moves the pen very quickly
         /// </summary>
-        public void CommitStroke(int X, int Y, KidPixCanvasBrush.PaintingCoordinateOrigin CoordinateOrigin = KidPixCanvasBrush.PaintingCoordinateOrigin.TopLeft)
-        {
+        public void CommitStroke(int X, int Y, 
+            DrawFunctions.KidPixCanvasBrushDrawingFunction.PaintingCoordinateOrigin CoordinateOrigin = DrawFunctions.KidPixCanvasBrushDrawingFunction.PaintingCoordinateOrigin.TopLeft)
+        {            
             if (SelectedTool.Value == default)
                 throw new InvalidOperationException("You cannot commit a Stroke right now. You haven't selected a tool or brush yet.");
 
             Point currentPos = new(X, Y);
-            if (CoordinateOrigin == PaintingCoordinateOrigin.TopLeft)
-                currentPos = new Point(X - (int)SelectedTool.Value.Radius, Y - (int)SelectedTool.Value.Radius);
+            currentPos = SelectedTool.Value.BrushDrawingFunction.TranslatePoint(currentPos, SelectedTool.Value.Radius, CoordinateOrigin);
 
-            if (_currentStroke == null)
-                _currentStroke = new Stroke(currentPos);
+            if (_currentStroke == null)            
+                _currentStroke = new Stroke(currentPos);                           
             else if (_currentStroke.CurrentPosition == currentPos && !_currentStroke.ContinuousSprayMode)
                 return; // The brush hasn't moved and continuous spray mode isn't on, cancel this stroke
-            
+
+            //**handle preview mode code here
+
+            if (_previewCanvasImage != null)
+            { // collect _preview canvas resources here as they are only useful for the last action on a brush
+                _previewCanvasImage.Dispose();
+                _previewCanvasImage = null;
+            }
+
+            Graphics? _previewGraphics = null;
+            if (ToolCanPreview)
+            {
+                _previewCanvasImage = (Bitmap)_canvasImage.Clone();
+                _previewGraphics = Graphics.FromImage(_previewCanvasImage); // create special Preview Graphics instance
+            }
+
+            //***
+
             MousePosition = currentPos;
-            SelectedTool.Value.BrushDrawingFunction.DoDrawFunction(_graphics, SelectedTool.Value, currentPos, _currentStroke);
+            //write to preview canvas if present, otherwise write direct to output if not previewable
+            SelectedTool.Value.BrushDrawingFunction.DoDrawFunction(_previewGraphics ?? _graphics, SelectedTool.Value, currentPos, _currentStroke);
             _currentStroke.CurrentPosition = MousePosition;
+
+            _previewGraphics?.Dispose(); // ensure previewable brush canvas is disposed after use
         }
         /// <summary>
         /// Stops the current <see cref="Stroke"/> and adds a new history item to the Undo stack to allow the user to 
         /// Undo/Redo to a point before/after this stroke
+        /// <para/>For previewable brushes, you can use the <paramref name="Cancelling"/> parameter to not write the previewed changes to the output
         /// </summary>
-        public void StopStroke()
+        public void StopStroke(bool Cancelling = false)
         {
+            //ensure previewable tool is wrote to the 
+            if (ToolCanPreview && !Cancelling)
+            { // not cancelling and in preview mode -- write changes to the output bmp
+                SelectedTool.Value.BrushDrawingFunction.DoDrawFunction(_graphics, SelectedTool.Value, _currentStroke.CurrentPosition, _currentStroke);
+            }
+
             _currentStroke = null;
+
+            //DELETE PREVIEWS
+            _previewCanvasImage?.Dispose();
+            _previewCanvasImage = null;
         }
 
         /// <summary>
@@ -105,7 +139,7 @@ namespace KidPix.API.AppService.Render
                 CanvasDefinition = NewSettings;
             Dispose(); // dispose of old bitmap image
 
-            CanvasImage = new Bitmap(CanvasDefinition.Width, CanvasDefinition.Height);
+            _canvasImage = new Bitmap(CanvasDefinition.Width, CanvasDefinition.Height);
             _graphics = Graphics.FromImage(CanvasImage);            
 
             //Fill the canvas with white
@@ -122,8 +156,11 @@ namespace KidPix.API.AppService.Render
         {
             _graphics?.Dispose();
             _graphics = null;
-            CanvasImage?.Dispose();
-            CanvasImage = null;
+            _canvasImage?.Dispose();
+            _canvasImage = null;
+
+            _previewCanvasImage?.Dispose();
+            _previewCanvasImage = null;
         }
     }
 }

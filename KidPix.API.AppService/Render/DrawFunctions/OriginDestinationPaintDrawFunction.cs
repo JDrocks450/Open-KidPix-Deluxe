@@ -8,6 +8,8 @@ namespace KidPix.API.AppService.Render.DrawFunctions
     /// </summary>
     public abstract class OriginDestinationPaintDrawFunction : KidPixCanvasBrushDrawingFunction
     {
+        internal override Point TranslatePoint(Point Point, double Radius, PaintingCoordinateOrigin Origin) => Point;
+
         internal override void DoPaintingFunction(KidPixCanvasBrushDrawingFunctionContext context, params Point[] points)
         {
             var point1 = new Point(Math.Min(points[0].X, points[1].X), Math.Min(points[0].Y, points[1].Y));

@@ -1,5 +1,6 @@
 ﻿using KidPix.API.AppService.Model;
 using KidPix.API.AppService.Render.CanvasBrushes;
+using KidPix.API.AppService.Render.DrawFunctions;
 using KidPix.API.AppService.Sessions;
 using KidPix.API.AppService.Sessions.Contexts;
 using KidPix.App.UI.Brushes;
@@ -64,11 +65,6 @@ namespace KidPix.App.UI.Pages.Easel
             TextBlock.TextProperty.BindKPtoWPFOneWay(DEBUG_SelectedToolLabel, mySession.GameplayState.SelectedCanvasBrush, (KidPixCanvasBrush? selectedBrush) => selectedBrush.BrushName);
         }
 
-        private void FirstSection_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            sessionUIState.ToolSubpageState.Value++;
-        }
-
         private async void DrawToolButton_Click(object sender, RoutedEventArgs e)
         {
             if (sender is not KPButton button) return;
@@ -80,5 +76,14 @@ namespace KidPix.App.UI.Pages.Easel
             double radiusSize = mySession.GameplayState.SelectedBrushSizeRadius.Value;
             mySession.GameplayState.SelectedCanvasBrush.Value = await KidPixUILibrary.CreateBrush(ToolType, primColor, radiusSize);
         }
+
+        private void FreePaintDrawModeShape_MouseLeftButtonUp(object sender, MouseButtonEventArgs e) => 
+            mySession.GameplayState.SelectedCanvasBrush.Value.BrushDrawingFunction = KidPixCanvasDrawFunctions.FreePaintFunction;
+
+        private void RectangleDrawModeShape_MouseLeftButtonUp(object sender, MouseButtonEventArgs e) => 
+            mySession.GameplayState.SelectedCanvasBrush.Value.BrushDrawingFunction = KidPixCanvasDrawFunctions.RectangleFillFunction;
+
+        private void CircleDrawModeShape_MouseLeftButtonUp(object sender, MouseButtonEventArgs e) => 
+            mySession.GameplayState.SelectedCanvasBrush.Value.BrushDrawingFunction = KidPixCanvasDrawFunctions.CircularFillFunction;
     }
 }

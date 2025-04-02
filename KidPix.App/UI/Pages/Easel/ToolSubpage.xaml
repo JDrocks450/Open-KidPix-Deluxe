@@ -28,13 +28,13 @@
     
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="203"/>
+            <ColumnDefinition Width="203" Name="FirstSectionRule"/>
             <ColumnDefinition Width="5"/>
-            <ColumnDefinition Width="413"/>
+            <ColumnDefinition Width="413" Name="SecondSectionRule" />
             <ColumnDefinition Width="1*"/>
         </Grid.ColumnDefinitions>
-        <!--CHANGE BG BASED ON CURRENT UI STATE-->
-        <Grid Name="FirstSection" MouseLeftButtonUp="FirstSection_MouseLeftButtonUp">
+        <!--CHANGE FIRST SECTION BG BASED ON CURRENT UI STATE-->
+        <Grid Name="FirstSection">
             <Grid.Style>
                 <Style TargetType="Grid">
                     <Style.Triggers>
@@ -59,46 +59,8 @@
                     </Style.Triggers>
                 </Style>
             </Grid.Style>
-            <!--CHANGE TOOL GROUP DEPENDING ON CURRENT UI STATE-->
-            <Canvas Name="PencilsToolGroup">
-                <Canvas.Style>
-                    <Style TargetType="Canvas">
-                        <Setter Property="Visibility" Value="Collapsed"/>
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding CurrentState, ElementName=HOST}" Value="Pencils">
-                                <Setter Property="Visibility" Value="Visible"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Canvas.Style>
-                <controls:KPButton Width="50" Height="50" Canvas.Left="14" Canvas.Top="10" ScaleFactor="1.25" ShouldAnimationAutoSize="True">
-                    <controls:KPButton.KPBackgroundBrush>
-                        <brushes:KPAnimatedImageBrush AssetType="tBMH" AssetID="18000" BMHFrame="152" Range="152..156" AnimationMode="PlayOnce" RepeatAmount="1" TransparentColor="Black" />
-                    </controls:KPButton.KPBackgroundBrush>
-                </controls:KPButton>
-                <controls:KPButton x:Name="PencilButton" Width="50" Height="50" Canvas.Left="18" Canvas.Top="10" ScaleFactor="1.25" ShouldAnimationAutoSize="True" Click="DrawToolButton_Click" Tag="Pencil">
-                    <controls:KPButton.KPBackgroundBrush>
-                        <brushes:KPAnimatedImageBrush AssetType="tBMH" AssetID="18000" BMHFrame="12" Range="12..16" AnimationMode="PlayOnce" RepeatAmount="1" TransparentColor="Black" PalettePrimaryColor="{Binding PalettePrimaryColor, Source={StaticResource UI_SelectedPrimaryColorBrush}}"/>
-                    </controls:KPButton.KPBackgroundBrush>
-                </controls:KPButton>
-                <controls:KPButton x:Name="ChalkButton" Width="50" Height="50" Canvas.Left="65" Canvas.Top="10" ScaleFactor="1.25" Click="DrawToolButton_Click" Tag="Chalk">
-                    <controls:KPButton.KPBackgroundBrush>
-                        <brushes:KPAnimatedImageBrush AssetType="tBMH" AssetID="18000" BMHFrame="23" Range="21..23" AnimationMode="Boomerang" RepeatAmount="2" TransparentColor="Black" PalettePrimaryColor="{Binding PalettePrimaryColor, Source={StaticResource UI_SelectedPrimaryColorBrush}}"/>
-                    </controls:KPButton.KPBackgroundBrush>
-                </controls:KPButton>
-                <controls:KPButton x:Name="CrayonButton" Width="50" Height="50" Canvas.Left="108" Canvas.Top="10" ScaleFactor="1.25" Click="DrawToolButton_Click" Tag="Crayon">
-                    <controls:KPButton.KPBackgroundBrush>
-                        <brushes:KPAnimatedImageBrush AssetType="tBMH" AssetID="18000" BMHFrame="55" Range="54..56" AnimationMode="Boomerang" RepeatAmount="2" TransparentColor="Black" PalettePrimaryColor="{Binding PalettePrimaryColor, Source={StaticResource UI_SelectedPrimaryColorBrush}}"/>
-                    </controls:KPButton.KPBackgroundBrush>
-                </controls:KPButton>
-                <controls:KPButton x:Name="HighlighterButton" Width="50" Height="50" Canvas.Left="159" Canvas.Top="10" ScaleFactor="1.25" Click="DrawToolButton_Click" Tag="Highlighter">
-                    <controls:KPButton.KPBackgroundBrush>
-                        <brushes:KPAnimatedImageBrush AssetType="tBMH" AssetID="18000" BMHFrame="71" Range="71..75" AnimationMode="PlayOnce" RepeatAmount="1" TransparentColor="Black" PalettePrimaryColor="{Binding PalettePrimaryColor, Source={StaticResource UI_SelectedPrimaryColorBrush}}"/>
-                    </controls:KPButton.KPBackgroundBrush>
-                </controls:KPButton>
-            </Canvas>
         </Grid>
-        <!--CHANGE TOOL AREA BASED ON CURRENT UI STATE-->
+        <!--SECOND SECTION CHANGE TOOL AREA BACKGROUND BASED ON CURRENT UI STATE-->
         <Grid Name="SecondSection" Grid.Column="2">
             <Grid.Style>
                 <Style TargetType="Grid">
@@ -125,7 +87,56 @@
                 </Style>
             </Grid.Style>
             <TextBlock Name="DEBUG_SelectedToolLabel" Margin="10,0" VerticalAlignment="Center" Foreground="Blue" HorizontalAlignment="Center">SELECTED TOOL</TextBlock>
-            <local:SizeSelector HorizontalAlignment="Left" Margin="3,0"/>
         </Grid>
+
+        <!--CHANGE TOOL GROUP CONTROLS DEPENDING ON CURRENT UI STATE-->
+        <Canvas Name="PencilsToolGroup" Grid.ColumnSpan="3">
+            <!--PENCILS GROUP-->
+            <Canvas.Style>
+                <Style TargetType="Canvas">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding CurrentState, ElementName=HOST}" Value="Pencils">
+                            <Setter Property="Visibility" Value="Visible"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Canvas.Style>
+            <controls:KPButton Width="50" Height="50" Canvas.Left="14" Canvas.Top="10" ScaleFactor="1.25" ShouldAnimationAutoSize="True">
+                <controls:KPButton.KPBackgroundBrush>
+                    <brushes:KPAnimatedImageBrush AssetType="tBMH" AssetID="18000" BMHFrame="152" Range="152..156" AnimationMode="PlayOnce" RepeatAmount="1" TransparentColor="Black" />
+                </controls:KPButton.KPBackgroundBrush>
+            </controls:KPButton>
+            <controls:KPButton x:Name="PencilButton" Width="50" Height="50" Canvas.Left="18" Canvas.Top="10" ScaleFactor="1.25" ShouldAnimationAutoSize="True" Click="DrawToolButton_Click" Tag="Pencil">
+                <controls:KPButton.KPBackgroundBrush>
+                    <brushes:KPAnimatedImageBrush AssetType="tBMH" AssetID="18000" BMHFrame="12" Range="12..16" AnimationMode="PlayOnce" RepeatAmount="1" TransparentColor="Black" PalettePrimaryColor="{Binding PalettePrimaryColor, Source={StaticResource UI_SelectedPrimaryColorBrush}}"/>
+                </controls:KPButton.KPBackgroundBrush>
+            </controls:KPButton>
+            <controls:KPButton x:Name="ChalkButton" Width="50" Height="50" Canvas.Left="65" Canvas.Top="10" ScaleFactor="1.25" Click="DrawToolButton_Click" Tag="Chalk">
+                <controls:KPButton.KPBackgroundBrush>
+                    <brushes:KPAnimatedImageBrush AssetType="tBMH" AssetID="18000" BMHFrame="23" Range="21..23" AnimationMode="Boomerang" RepeatAmount="2" TransparentColor="Black" PalettePrimaryColor="{Binding PalettePrimaryColor, Source={StaticResource UI_SelectedPrimaryColorBrush}}"/>
+                </controls:KPButton.KPBackgroundBrush>
+            </controls:KPButton>
+            <controls:KPButton x:Name="CrayonButton" Width="50" Height="50" Canvas.Left="108" Canvas.Top="10" ScaleFactor="1.25" Click="DrawToolButton_Click" Tag="Crayon">
+                <controls:KPButton.KPBackgroundBrush>
+                    <brushes:KPAnimatedImageBrush AssetType="tBMH" AssetID="18000" BMHFrame="55" Range="54..56" AnimationMode="Boomerang" RepeatAmount="2" TransparentColor="Black" PalettePrimaryColor="{Binding PalettePrimaryColor, Source={StaticResource UI_SelectedPrimaryColorBrush}}"/>
+                </controls:KPButton.KPBackgroundBrush>
+            </controls:KPButton>
+            <controls:KPButton x:Name="HighlighterButton" Width="50" Height="50" Canvas.Left="159" Canvas.Top="10" ScaleFactor="1.25" Click="DrawToolButton_Click" Tag="Highlighter">
+                <controls:KPButton.KPBackgroundBrush>
+                    <brushes:KPAnimatedImageBrush AssetType="tBMH" AssetID="18000" BMHFrame="71" Range="71..75" AnimationMode="PlayOnce" RepeatAmount="1" TransparentColor="Black" PalettePrimaryColor="{Binding PalettePrimaryColor, Source={StaticResource UI_SelectedPrimaryColorBrush}}"/>
+                </controls:KPButton.KPBackgroundBrush>
+            </controls:KPButton>
+
+            <!--SECOND SECTION IN PENCILS MODE-->
+            <Grid Canvas.Right="0" Width="{Binding ActualWidth, ElementName=SecondSection}" Height="{Binding ActualHeight, ElementName=SecondSection}">
+                <local:SizeSelector HorizontalAlignment="Left" Margin="3,0"/>
+                <StackPanel Orientation="Horizontal" Margin="10,0" VerticalAlignment="Center" HorizontalAlignment="Right" Height="25">
+                    <Rectangle Name="FreePaintDrawModeShape" Height="5" Width="25" Fill="Green" MouseLeftButtonUp="FreePaintDrawModeShape_MouseLeftButtonUp"/>
+                    <Rectangle x:Name="RectangleDrawModeShape" Width="25" Fill="Blue" Margin="10,0" MouseLeftButtonUp="RectangleDrawModeShape_MouseLeftButtonUp"/>
+                    <Ellipse Name="CircleDrawModeShape" Width="25" Fill="Red" MouseLeftButtonUp="CircleDrawModeShape_MouseLeftButtonUp"/>
+                </StackPanel>
+            </Grid>
+        </Canvas>
     </Grid>
 </Page>

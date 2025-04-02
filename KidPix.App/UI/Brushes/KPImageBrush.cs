@@ -265,7 +265,7 @@ namespace KidPix.App.UI.Brushes
             //LOAD ANIMATION TIME LINE
             _animationFrames.Clear();
             foreach (int FrameID in AnimationFrames)
-            {
+            {                 
                 var img = (await LibraryImport(FrameID))?.ImageSource;
                 if (img == null) throw new NullReferenceException(nameof(img));
                 _animationFrames.Add(img);

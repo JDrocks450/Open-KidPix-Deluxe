@@ -17,6 +17,19 @@ namespace KidPix.API.AppService.Render.DrawFunctions
     /// </summary>
     public abstract class KidPixCanvasBrushDrawingFunction
     {
+        public enum PaintingCoordinateOrigin
+        {
+            TopLeft,
+            Center
+        }
+
+        /// <summary>
+        /// A <see cref="Boolean"/> dictating whether this tool has a preview before the stroke is completed.
+        /// </summary>
+        internal abstract bool IsPreviewable { get; }
+
+        internal abstract Point TranslatePoint(Point Point, double Radius, PaintingCoordinateOrigin Origin);
+
         /// <summary>
         /// Performs the drawing function of this <see cref="KidPixCanvasBrushDrawingFunction"/>
         /// </summary>

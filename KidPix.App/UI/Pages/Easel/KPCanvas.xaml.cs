@@ -144,12 +144,14 @@ namespace KidPix.App.UI.Pages.Easel
             {
                 if (Mouse.LeftButton == MouseButtonState.Released)
                     myCanvas.StopStroke(); // stop painting lift the brush
+                if (Keyboard.IsKeyDown(Key.Escape)) // user cancelling!!
+                    myCanvas.StopStroke(true);
                 DisplayArtCanvas();
             }
         }
 
         //***THREAD CALLBACK
 
-        private void UserPollThreadCallback(object? state) => Dispatcher.InvokeAsync(UpdateFrame);
+        private void UserPollThreadCallback(object? state) => Dispatcher.InvokeAsync(UpdateFrame);        
     }
 }

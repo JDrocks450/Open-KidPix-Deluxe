@@ -29,6 +29,5 @@ namespace KidPix.API.AppService.Render
         /// <para/>Default is false
         /// </summary>
         public bool ContinuousSprayMode { get; set; } = false;
-        public KidPixCanvasBrush.PaintingCoordinateOrigin CoordinateOrigin { get; internal set; }
     }
 }

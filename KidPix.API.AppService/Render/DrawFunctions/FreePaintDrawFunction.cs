@@ -14,6 +14,15 @@ namespace KidPix.API.AppService.Render.DrawFunctions
     /// </summary>
     public class FreePaintDrawFunction : KidPixCanvasBrushDrawingFunction
     {
+        internal override bool IsPreviewable => false; // this brush is not previewable -- it's procedural
+
+        internal override Point TranslatePoint(Point Point, double Radius, PaintingCoordinateOrigin Origin)
+        {
+            if (Origin == PaintingCoordinateOrigin.TopLeft)
+                return new Point(Point.X - (int)Radius, Point.Y - (int)Radius);
+            return Point;
+        }
+
         internal override void DoPaintingFunction(KidPixCanvasBrushDrawingFunctionContext context, params Point[] points) => 
             context.Graphics.FillEllipse(context.GDIBrush, new Rectangle(points[0], new Size((int)(context.Radius * 2), (int)(context.Radius * 2))));
 
