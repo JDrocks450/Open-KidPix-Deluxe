@@ -2,6 +2,7 @@
 using KidPix.API.Importer.Mohawk;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Numerics;
 
 namespace KidPix.API.Importer.Graphics
 {

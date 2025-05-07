@@ -101,6 +101,8 @@ namespace KidPix.API.AppService.Render
 
             //***
 
+            if (SelectedTool.Value is KidPixPencilToolBrush)
+
             MousePosition = currentPos;
             //write to preview canvas if present, otherwise write direct to output if not previewable
             SelectedTool.Value.BrushDrawingFunction.DoDrawFunction(_previewGraphics ?? _graphics, SelectedTool.Value, currentPos, _currentStroke);

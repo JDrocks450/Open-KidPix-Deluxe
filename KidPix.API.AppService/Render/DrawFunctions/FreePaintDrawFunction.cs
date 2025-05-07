@@ -13,7 +13,7 @@ namespace KidPix.API.AppService.Render.DrawFunctions
     /// A <see cref="KidPixCanvasBrushDrawingFunction"/> that will paint instantaneously at the point on the canvas specified and connect the stroke points for fast strokes
     /// </summary>
     public class FreePaintDrawFunction : KidPixCanvasBrushDrawingFunction
-    {
+    {        
         internal override bool IsPreviewable => false; // this brush is not previewable -- it's procedural
 
         internal override Point TranslatePoint(Point Point, double Radius, PaintingCoordinateOrigin Origin)

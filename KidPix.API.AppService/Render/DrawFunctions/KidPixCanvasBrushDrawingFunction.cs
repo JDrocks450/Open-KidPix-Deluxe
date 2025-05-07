@@ -30,6 +30,8 @@ namespace KidPix.API.AppService.Render.DrawFunctions
 
         internal abstract Point TranslatePoint(Point Point, double Radius, PaintingCoordinateOrigin Origin);
 
+        internal KidPixCanvasBrushDrawingFunction() { }
+
         /// <summary>
         /// Performs the drawing function of this <see cref="KidPixCanvasBrushDrawingFunction"/>
         /// </summary>

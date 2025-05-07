@@ -4,12 +4,14 @@ using KidPix.API.Importer;
 using KidPix.API.Importer.Graphics;
 using KidPix.API.Importer.Mohawk;
 using KidPix.API.Resources;
+using KidPix.App.UI.Brushes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace KidPix.App.UI.Util
 {
@@ -35,6 +37,7 @@ namespace KidPix.App.UI.Util
                 LinkedArchives.Add(name, easelArchive);
                 success = true;
             }
+
             return success;
         }
 

@@ -20,7 +20,7 @@ namespace KidPix.API.AppService.Render.CanvasBrushes
         }        
 
         /// <summary>
-        /// The selected color by the user
+        /// The selected <see cref="Color"/> by the user
         /// </summary>
         public Color PrimaryColor
         {
@@ -36,7 +36,10 @@ namespace KidPix.API.AppService.Render.CanvasBrushes
 
         public double Radius { get; set; } = 5;
 
-        public KidPixCanvasBrushDrawingFunction BrushDrawingFunction { get; set; } = new RectanglePaintDrawFunction();
+        /// <summary>
+        /// A <see cref="KidPixCanvasBrushDrawingFunction"/> that implements how this <see cref="KidPixCanvasBrush"/> should behave like on the canvas
+        /// </summary>
+        public KidPixCanvasBrushDrawingFunction BrushDrawingFunction { get; set; } = KidPixCanvasDrawFunctions.FreePaintFunction;
 
         /// <summary>
         /// Returns a new instance of whatever <see cref="Brush"/> corresponds with this <see cref="KidPixCanvasBrush"/> 
